@@ -17,6 +17,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-import.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-shortcode.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-shortcode-handler.php';
 
 
 register_activation_hook(__FILE__, ['MSA_Tool_Activator', 'activate']);
