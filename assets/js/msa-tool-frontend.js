@@ -1,53 +1,38 @@
 console.log("MSA Tool Frontend script loaded");
-document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('msa-tool-container');
-    const filters = document.getElementById('msa-tool-filters');
-    const table = document.getElementById('msa-tool-table');
+document.addEventListener("DOMContentLoaded", () => {
+    // Проверяем наличие данных
+    if (typeof msaToolData !== "undefined") {
+        console.log("Received data:", msaToolData);
 
-    // Получаем данные из PHP
-    const { categories } = msaToolData;
+        // Пример обработки данных
+        const {categories, regions} = msaToolData;
 
-    // Создаем фильтр (позже тут будут регионы)
-    const regionSelect = document.createElement('select');
-    regionSelect.innerHTML = `
-        <option value="Orlando">Orlando</option>
-        <option value="Virginia">Virginia</option>
-        <option value="Alaska">Alaska</option>
-    `;
-    filters.appendChild(regionSelect);
-
-    // Генерация таблицы
-    function generateTable() {
-        table.innerHTML = ''; // Очищаем таблицу
-
+        // Отображение категорий
         Object.entries(categories).forEach(([category, indicators]) => {
-            const categoryHeader = document.createElement('h3');
-            categoryHeader.textContent = category;
-            table.appendChild(categoryHeader);
-
-            const categoryTable = document.createElement('table');
-            categoryTable.className = 'category-table';
-            table.appendChild(categoryTable);
-
-            Object.entries(indicators).forEach(([indicator, values]) => {
-                const row = document.createElement('tr');
-                const indicatorCell = document.createElement('td');
-                indicatorCell.textContent = indicator;
-                row.appendChild(indicatorCell);
-
-                const selectedRegion = regionSelect.value;
-                const valueCell = document.createElement('td');
-                valueCell.textContent = values[selectedRegion] || 'N/A';
-                row.appendChild(valueCell);
-
-                categoryTable.appendChild(row);
-            });
+            console.log(`Category: ${category}`, indicators);
         });
+
+        // Отображение регионов
+        Object.entries(regions).forEach(([region, data]) => {
+            console.log(`Region: ${region}`, data);
+        });
+
+        // TODO: Реализовать динамическую отрисовку данных
+    } else {
+        console.error("msaToolData is not defined!");
     }
+});
 
-    // Обновляем таблицу при изменении выбора региона
-    regionSelect.addEventListener('change', generateTable);
-
-    // Изначально генерируем таблицу
-    generateTable();
+//toggle
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.msa-toggle-category').forEach(button => {
+        button.addEventListener('click', function () {
+            const categoryContent = this.closest('.msa-category').querySelector('.msa-category-content');
+            if (categoryContent.style.display === 'none') {
+                categoryContent.style.display = 'block';
+            } else {
+                categoryContent.style.display = 'none';
+            }
+        });
+    });
 });

@@ -1,0 +1,44 @@
+#msa-tool-container {
+    margin: 20px 0;
+}
+
+.msa-category {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.msa-category-header {
+    background-color: #f4f4f4;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.msa-category-content {
+    padding: 10px;
+    display: none;
+}
+
+.msa-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.msa-table thead th {
+    color: #000 !important;
+}
+
+.msa-table th,
+.msa-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.msa-table th {
+    background-color: #f8f8f8;
+}
