@@ -1,13 +1,52 @@
 <div class="wrap">
     <h1>MSA Comparison Tool</h1>
-    <p>On this page, you can upload an XLSX file for debugging or importing data into the database.</p>
+
+
+    <!-- Настройки-->
+    <h2>MSA Tool Settings</h2>
+    <form method="post">
+        <?php wp_nonce_field('msa_tool_settings', 'msa_tool_settings_nonce'); ?>
+
+        <table class="form-table">
+            <!-- Опция отключения скриптов ArcGIS -->
+            <tr>
+                <th scope="row">
+                    <label for="msa_tool_disable_arcgis">Disable ArcGIS Scripts:</label>
+                </th>
+                <td>
+                    <input type="checkbox" id="msa_tool_disable_arcgis" name="msa_tool_disable_arcgis" value="1"
+                        <?php checked(get_option('msa_tool_disable_arcgis', 0), 1); ?>>
+                    <p class="description">Check this box to prevent ArcGIS scripts from being loaded by the plugin.</p>
+                </td>
+            </tr>
+
+            <!-- Опция для мультисайта -->
+            <?php if (is_multisite()) : ?>
+                <tr>
+                    <th scope="row">
+                        <label for="msa_tool_global_data">Enable Global Data Mode:</label>
+                    </th>
+                    <td>
+                        <input type="checkbox" id="msa_tool_global_data" name="msa_tool_global_data" value="1"
+                            <?php checked((int)get_site_option('msa_tool_global_data') === get_current_blog_id()); ?>>
+                        <p class="description">If enabled, this site will manage data globally for all subsites in the network.</p>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </table>
+
+        <p class="submit">
+            <button type="submit" class="button button-primary" name="msa_tool_settings_submit">Save Settings</button>
+        </p>
+    </form>
+
+
+    <h2>Import Settings</h2>
+    <p>You can upload an XLSX file for debugging or importing data into the database.</p>
     <p>Need help? <a href="<?php echo esc_url(plugins_url('assets/example-data-short.xlsx', dirname(__FILE__))); ?>" download>
             Download the example XLSX file
         </a>.
     </p>
-
-    <h2>Import Settings</h2>
-
     <!-- Форма для загрузки файла -->
     <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('msa_tool_import', 'msa_tool_import_nonce'); ?>
@@ -29,34 +68,6 @@
     </form>
 
 
-    <!-- Опция для мультисайта -->
-    <?php if (is_multisite()) : ?>
-        <form method="post">
-            <?php wp_nonce_field('msa_tool_global', 'msa_tool_global_nonce'); ?>
-
-            <table class="form-table">
-                <tr>
-                    <th scope="row">
-                        <label for="msa_tool_global_data">Enable Global Data Mode:</label>
-                    </th>
-                    <td>
-                        <input type="checkbox" id="msa_tool_global_data" name="msa_tool_global_data" value="1"
-                            <?php checked((int)get_site_option('msa_tool_global_data') === get_current_blog_id()); ?>>
-
-                        <p class="description">If enabled, this site will manage data globally for all subsites in the
-                            network.</p>
-
-                    </td>
-                </tr>
-            </table>
-
-            <p class="submit">
-                <button type="submit" name="msa_tool_global_submit" class="button button-primary">Save Settings</button>
-            </p>
-        </form>
-
-
-    <?php endif; ?>
 
     <h2>Recent Imports</h2>
     <?php

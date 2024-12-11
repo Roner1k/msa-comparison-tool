@@ -30,7 +30,7 @@ class MSA_Tool_Database
         $results = $wpdb->get_results("SELECT * FROM $table_name", ARRAY_A);
 
         // Логируем результаты
-        error_log("Data fetched from $table_name: " . print_r($results, true));
+//        error_log("Data fetched from $table_name: " . print_r($results, true));
 
         return $results ? $results : [];
     }

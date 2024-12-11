@@ -27,4 +27,31 @@ if (is_admin()) {
     MSA_Tool_Admin::init();
 } else {
     MSA_Tool_Shortcode::init();
+    add_action('wp_enqueue_scripts', 'msa_tool_enqueue_arcgis_scripts');
+
+}
+function msa_tool_enqueue_arcgis_scripts() {
+    $disable_arcgis = get_option('msa_tool_disable_arcgis', 0);
+
+    if ($disable_arcgis) {
+        return;
+    }
+
+    wp_register_script(
+        'arcgis-init',
+        'https://js.arcgis.com/4.23/init.js',
+        [],
+        null,
+        true
+    );
+
+    wp_register_style(
+        'arcgis-styles',
+        'https://js.arcgis.com/4.23/esri/themes/light/main.css',
+        [],
+        null
+    );
+
+    wp_enqueue_script('arcgis-init');
+    wp_enqueue_style('arcgis-styles');
 }

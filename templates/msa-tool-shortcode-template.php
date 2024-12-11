@@ -1,16 +1,26 @@
 <?php if (!empty($data)): ?>
     <div id="msa-tool-container">
 
-        <!-- Фильтры -->
-        <div id="msa-tool-filters">
-            <!-- Здесь можно будет добавить фильтры -->
+        <div id="msa-tool-map">
+            <div id="viewDiv" style="width: 100%; height: 700px;">
+            </div>
+
         </div>
 
-        <!-- Основной контент -->
+        <div id="msa-tool-filters">
+            <div class="map-item-list">
+                <div class="map-item" data-object-id="1">Location 1</div>
+                <div class="map-item" data-object-id="2">Location 2</div>
+                <div class="map-item" data-object-id="3">Location 3</div>
+            </div>
+
+        </div>
+
+
         <div id="msa-tool-content">
             <?php foreach ($data['categories'] as $category => $indicators): ?>
                 <div class="msa-category">
-                    <!-- Заголовок категории -->
+
                     <div class="msa-category-header">
                         <h3>
                             <?php echo esc_html($category); ?>
@@ -18,7 +28,7 @@
                         <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">Toggle</button>
                     </div>
 
-                    <!-- Таблица категории -->
+
                     <div class="msa-category-content" style="display: none;">
                         <table class="msa-table">
                             <thead>

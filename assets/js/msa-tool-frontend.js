@@ -2,19 +2,19 @@ console.log("MSA Tool Frontend script loaded");
 document.addEventListener("DOMContentLoaded", () => {
     // Проверяем наличие данных
     if (typeof msaToolData !== "undefined") {
-        console.log("Received data:", msaToolData);
+        // console.log("Received data:", msaToolData);
 
         // Пример обработки данных
         const {categories, regions} = msaToolData;
 
         // Отображение категорий
         Object.entries(categories).forEach(([category, indicators]) => {
-            console.log(`Category: ${category}`, indicators);
+            // console.log(`Category: ${category}`, indicators);
         });
 
         // Отображение регионов
         Object.entries(regions).forEach(([region, data]) => {
-            console.log(`Region: ${region}`, data);
+            // console.log(`Region: ${region}`, data);
         });
 
         // TODO: Реализовать динамическую отрисовку данных
