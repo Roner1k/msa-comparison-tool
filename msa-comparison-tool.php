@@ -27,9 +27,10 @@ if (is_admin()) {
     MSA_Tool_Admin::init();
 } else {
     MSA_Tool_Shortcode::init();
-    add_action('wp_enqueue_scripts', 'msa_tool_enqueue_arcgis_scripts');
 
 }
+add_action('wp_enqueue_scripts', 'msa_tool_enqueue_arcgis_scripts');
+
 function msa_tool_enqueue_arcgis_scripts() {
     $disable_arcgis = get_option('msa_tool_disable_arcgis', 0);
 
