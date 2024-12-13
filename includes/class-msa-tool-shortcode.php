@@ -5,14 +5,8 @@ class MSA_Tool_Shortcode
     public static function init()
     {
         add_shortcode('msa_tool_table', [self::class, 'render_table_shortcode']);
-//        add_shortcode('msa_tool_debug', [self::class, 'debug_shortcode']);
-
         add_action('wp_enqueue_scripts', [self::class, 'register_scripts']);
     }
-
-
-
-
 
     public static function register_scripts()
     {
@@ -52,10 +46,15 @@ class MSA_Tool_Shortcode
 
         $data = MSA_Tool_Shortcode_Handler::get_data($atts);
 
+        $map_data = MSA_Tool_Shortcode_Handler::get_map_data();
+
         wp_localize_script('msa-tool-frontend', 'msaToolData', $data);
-        wp_localize_script('msa-tool-frontend-map', 'msaToolSettings', [
+        wp_localize_script('msa-tool-frontend-map', 'msaMapData', [
+            'regions' => $map_data,
             'portalItemId' => '5c0c0595be9c422bb95ace1bc48f610e',
             'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_s/FeatureServer/0',
+            'activeRegions' => [] // Для синхронизации активных регионов
+
         ]);
 
         ob_start();
@@ -65,10 +64,6 @@ class MSA_Tool_Shortcode
 
         return ob_get_clean();
     }
-
-
-
-
 
 
 }

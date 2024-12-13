@@ -1,119 +1,164 @@
 jQuery(document).ready(function ($) {
-
-    console.log("ArcGIS Map script loaded");
-    /*
-        require([
-            "esri/WebMap",
-            "esri/views/MapView"
-        ], function (WebMap, MapView) {
-            // Create WebMap instance using the specified ID
-            const webMap = new WebMap({
-                portalItem: {
-                    id: "5c0c0595be9c422bb95ace1bc48f610e" // Replace with your map ID
-                }
-            });
-
-            // Create MapView instance
-            const view = new MapView({
-                container: "viewDiv", // ID of the container div
-                map: webMap,
-                zoom: 10, // Initial zoom level
-                center: [-81.379234, 28.538336] // Center coordinates (Orlando, FL)
-            });
-
-            // Log when the map is successfully loaded
-            view.when(function () {
-                console.log("Map loaded successfully!");
-
-                // Listen for click events on the map
-                view.on("click", function (event) {
-                    // Identify features at the clicked location
-                    view.hitTest(event).then(function (response) {
-                        if (response.results.length > 0) {
-                            // Loop through results to find FeatureLayer results
-                            response.results.forEach(function (result) {
-                                if (result.graphic && result.graphic.layer.type === "feature") {
-                                    // Log all attributes of the clicked feature
-                                    console.log("Clicked feature attributes:", result.graphic.attributes);
-
-                                    // Example: log a specific attribute
-                                    console.log("GEOID:", result.graphic.attributes.GEOID || "Not available");
-                                }
-                            });
-                        } else {
-                            console.log("No features found at clicked location.");
-                        }
-                    }).catch(function (error) {
-                        console.error("Error during hitTest:", error);
-                    });
-                });
-            }).catch(function (error) {
-                console.error("Error loading map: ", error);
-            });
-        });
-        */
     require([
         "esri/WebMap",
         "esri/views/MapView",
-        "esri/tasks/QueryTask",
-        "esri/tasks/support/Query"
-    ], function (WebMap, MapView, QueryTask, Query) {
-        // Создание WebMap с вашим ID карты
+        "esri/layers/FeatureLayer",
+        "esri/Graphic"
+    ], function (WebMap, MapView, FeatureLayer, Graphic) {
+        // Инициализация карты
         const webMap = new WebMap({
             portalItem: {
-                id: "5c0c0595be9c422bb95ace1bc48f610e" // Ваш ID карты
+                id: msaMapData.portalItemId
             }
         });
 
-        // Инициализация MapView
         const view = new MapView({
-            container: "viewDiv", // Контейнер карты
+            container: "viewDiv",
             map: webMap,
-            zoom: 5, // Начальное приближение
-            center: [-95, 37] // Центр карты (пример: центр США)
+            zoom: 5,
+            center: [-95, 37]
         });
 
-        // Настройка QueryTask с вашим URL слоя
-        const queryTask = new QueryTask({
-            url: "https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_s/FeatureServer/0" // Ваш Feature Layer
+        const featureLayer = new FeatureLayer({
+            url: msaMapData.featureLayerUrl
         });
 
-        // Слушаем событие клика по карте
+        webMap.add(featureLayer);
+
+        // Подсветка регионов на карте
+        function highlightRegions(mapIds) {
+            if (!mapIds || mapIds.length === 0) {
+                view.graphics.removeAll();
+                return;
+            }
+
+            // Создаем запрос для подсветки регионов
+            const query = featureLayer.createQuery();
+            query.where = `CBSAFP IN (${mapIds.map(id => `'${id}'`).join(",")})`;
+
+            featureLayer.queryFeatures(query).then(function (result) {
+                view.graphics.removeAll();
+
+                result.features.forEach(feature => {
+                    const highlightSymbol = {
+                        type: "simple-fill",
+                        color: [0, 0, 255, 0.3],
+                        outline: {
+                            color: [0, 0, 255],
+                            width: 2
+                        }
+                    };
+
+                    const graphic = new Graphic({
+                        geometry: feature.geometry,
+                        symbol: highlightSymbol
+                    });
+
+                    view.graphics.add(graphic);
+                });
+                console.log(`Regions with map IDs ${mapIds.join(", ")} highlighted.`);
+            }).catch(function (error) {
+                console.error("Error querying features for highlight:", error);
+            });
+        }
+
+        // Синхронизация с селектором
+        let selectedRegions = ["orlando-fl"]; // Orlando всегда активен
+        const maxRegions = 5;
+
+        function updateSelector(regionSlug, mapId, add) {
+            const selectorContainer = $("#msa-custom-select .msa-selected-items");
+            const placeholder = $("#msa-custom-select .msa-placeholder");
+            const option = $(`.msa-option[data-slug="${regionSlug}"]`);
+
+            if (add) {
+                if (!selectedRegions.includes(regionSlug)) {
+                    selectedRegions.push(regionSlug);
+
+                    // Добавляем регион в селектор
+                    const selectedItem = $("<span>")
+                        .addClass("msa-selected-item")
+                        .attr("data-slug", regionSlug)
+                        .attr("data-map-id", mapId)
+                        .text(option.text())
+                        .on("click", function () {
+                            updateSelector(regionSlug, mapId, false);
+                        });
+
+                    selectorContainer.append(selectedItem);
+                    option.addClass("selected");
+
+                    placeholder.hide();
+                }
+            } else {
+                selectedRegions = selectedRegions.filter(slug => slug !== regionSlug);
+                selectorContainer.find(`[data-slug="${regionSlug}"]`).remove();
+                option.removeClass("selected");
+
+                if (selectedRegions.length === 0) {
+                    placeholder.show();
+                }
+            }
+
+            updateTableColumns();
+            const activeMapIds = selectedRegions.map(slug => $(`.msa-option[data-slug="${slug}"]`).data("map-id"));
+            highlightRegions(activeMapIds);
+        }
+
+        // Обновление колонок таблицы
+        function updateTableColumns() {
+            $(".msa-region-column").each(function () {
+                const slug = $(this).data("region-slug");
+                $(this).toggle(selectedRegions.includes(slug));
+            });
+        }
+
+        // Обработка клика в селекторе
+        $(document).on("click", ".msa-option", function () {
+            const regionSlug = $(this).data("slug");
+            const mapId = $(this).data("map-id");
+            const isSelected = selectedRegions.includes(regionSlug);
+
+            if (!isSelected && selectedRegions.length >= maxRegions) {
+                alert("You can select up to 5 locations.");
+                return;
+            }
+
+            updateSelector(regionSlug, mapId, !isSelected);
+        });
+
+        // Обработка клика на карте
         view.on("click", async function (event) {
-            // Конвертируем экранные координаты в географические
-            const mapPoint = event.mapPoint;
-
-            // Настраиваем запрос
-            const query = new Query();
-            query.geometry = mapPoint; // Используем точку клика
-            query.returnGeometry = false; // Геометрия не возвращается, только атрибуты
-            query.outFields = ["*"]; // Возвращаем все атрибуты
+            const query = featureLayer.createQuery();
+            query.geometry = event.mapPoint;
+            query.returnGeometry = false;
+            query.outFields = ["*"];
 
             try {
-                // Выполняем запрос
-                const result = await queryTask.execute(query);
-
+                const result = await featureLayer.queryFeatures(query);
                 if (result.features.length > 0) {
-                    // Получаем первый объект
-                    const feature = result.features[0];
+                    const mapId = result.features[0].attributes.CBSAFP;
+                    const region = msaMapData.regions.find(r => r.map_id == mapId);
 
-                    // Лог атрибутов объекта в консоль
-                    console.log("Clicked feature attributes:", feature.attributes);
-                } else {
-                    console.log("No features found at clicked location.");
+                    if (region) {
+                        if (selectedRegions.length >= maxRegions && !selectedRegions.includes(region.region_slug)) {
+                            alert("You can select up to 5 locations.");
+                            return;
+                        }
+
+                        updateSelector(region.region_slug, mapId, !selectedRegions.includes(region.region_slug));
+                    }
                 }
             } catch (error) {
-                console.error("Error querying features:", error);
+                console.error("Error querying map region:", error);
             }
         });
 
-        // Лог при успешной загрузке карты
-        view.when(function () {
-            console.log("Map successfully loaded.");
-        }).catch(function (error) {
-            console.error("Error loading map:", error);
+        // Инициализация подсветки и таблицы
+        view.when(() => {
+            updateTableColumns();
+            const activeMapIds = selectedRegions.map(slug => $(`.msa-option[data-slug="${slug}"]`).data("map-id"));
+            highlightRegions(activeMapIds);
         });
     });
-
-
 });

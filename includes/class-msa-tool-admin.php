@@ -9,51 +9,7 @@ class MSA_Tool_Admin
 
     }
 
-
-    /*
-        public static function render_settings_page()
-        {
-
-            // Обработка импорта файла
-            if (isset($_POST['msa_tool_import_submit'])) {
-                MSA_Tool_Import::handle_file_import();
-            }
-
-            if (isset($_POST['msa_tool_arcgis_submit']) && check_admin_referer('msa_tool_arcgis', 'msa_tool_arcgis_nonce')) {
-                $disable_arcgis = isset($_POST['msa_tool_disable_arcgis']) ? 1 : 0;
-                update_option('msa_tool_disable_arcgis', $disable_arcgis);
-
-                add_settings_error('msa_tool_messages', 'msa_tool_success', 'ArcGIS script setting updated.', 'success');
-            }
-
-            // Получаем текущее значение
-            $disable_arcgis = get_option('msa_tool_disable_arcgis', 0);
-
-
-            // Обработка настройки глобального режима
-            if (isset($_POST['msa_tool_global_submit']) && check_admin_referer('msa_tool_global', 'msa_tool_global_nonce')) {
-                $global_data = isset($_POST['msa_tool_global_data']) ? (int)get_current_blog_id() : null;
-
-                if ($global_data) {
-                    update_site_option('msa_tool_global_data', $global_data);
-                } else {
-                    delete_site_option('msa_tool_global_data');
-                }
-
-                add_settings_error('msa_tool_messages', 'msa_tool_success', 'Global data setting updated.', 'success');
-            }
-
-            if (self::render_global_mode_message()) {
-                return;
-            }
-
-            // Подключаем шаблон страницы настроек
-            include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-settings.php';
-
-
-        }
-        */
-    public static function render_settings_page()
+     public static function render_settings_page()
     {
         // Обработка импорта файла
         if (isset($_POST['msa_tool_import_submit'])) {

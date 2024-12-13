@@ -1,38 +1,37 @@
-console.log("MSA Tool Frontend script loaded");
-document.addEventListener("DOMContentLoaded", () => {
-    // Проверяем наличие данных
-    if (typeof msaToolData !== "undefined") {
-        // console.log("Received data:", msaToolData);
+jQuery(document).ready(function ($) {
+    console.log("MSA Tool Frontend script loaded");
 
-        // Пример обработки данных
-        const {categories, regions} = msaToolData;
+    // Тогглы для категорий
+    $(".msa-toggle-category").on("click", function () {
+        const categoryContent = $(this).closest(".msa-category").find(".msa-category-content");
+        categoryContent.toggle();
+    });
 
-        // Отображение категорий
-        Object.entries(categories).forEach(([category, indicators]) => {
-            // console.log(`Category: ${category}`, indicators);
+    // Работа с выпадающим списком
+    const customSelect = $("#msa-custom-select");
+    const options = $(".msa-option");
+    const searchInput = $("#msa-search-input");
+
+    // Фильтрация списка
+    searchInput.on("input", function () {
+        const filter = $(this).val().toLowerCase();
+        options.each(function () {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(filter));
         });
+    });
 
-        // Отображение регионов
-        Object.entries(regions).forEach(([region, data]) => {
-            // console.log(`Region: ${region}`, data);
-        });
+    // Открытие/закрытие выпадающего меню
+    customSelect.on("click", function (e) {
+        if (!$(e.target).hasClass("msa-selected-item") && e.target !== searchInput[0]) {
+            customSelect.find(".msa-options").toggle();
+        }
+    });
 
-        // TODO: Реализовать динамическую отрисовку данных
-    } else {
-        console.error("msaToolData is not defined!");
-    }
-});
-
-//toggle
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.msa-toggle-category').forEach(button => {
-        button.addEventListener('click', function () {
-            const categoryContent = this.closest('.msa-category').querySelector('.msa-category-content');
-            if (categoryContent.style.display === 'none') {
-                categoryContent.style.display = 'block';
-            } else {
-                categoryContent.style.display = 'none';
-            }
-        });
+    // Закрытие меню при клике вне него
+    $(document).on("click", function (e) {
+        if (!customSelect[0].contains(e.target)) {
+            customSelect.find(".msa-options").hide();
+        }
     });
 });
