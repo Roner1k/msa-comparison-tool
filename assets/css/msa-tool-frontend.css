@@ -114,3 +114,8 @@
     color: #fff;
     font-weight: bold;
 }
+
+/* Отключаем все элементы попапов на карте */
+#msa-tool-container .esri-component.esri-popup {
+    display: none !important;
+}

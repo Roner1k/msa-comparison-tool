@@ -52,8 +52,9 @@ class MSA_Tool_Shortcode
         wp_localize_script('msa-tool-frontend-map', 'msaMapData', [
             'regions' => $map_data,
             'portalItemId' => '5c0c0595be9c422bb95ace1bc48f610e',
-            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_s/FeatureServer/0',
-            'activeRegions' => [] // Для синхронизации активных регионов
+//            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_s/FeatureServer/0',
+            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_view/FeatureServer',
+            'activeRegions' => ['orlando-fl']
 
         ]);
 

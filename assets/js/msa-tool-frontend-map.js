@@ -1,4 +1,4 @@
-/*
+
 jQuery(document).ready(function ($) {
 
 
@@ -165,10 +165,10 @@ jQuery(document).ready(function ($) {
         });
     });
 });
-*/
 
 
 
+/*
 jQuery(document).ready(function ($) {
     require([
         "esri/WebMap",
@@ -329,3 +329,219 @@ jQuery(document).ready(function ($) {
         });
     });
 });
+*/
+
+
+// jQuery(document).ready(function ($) {
+//     require([
+//         "esri/WebMap",
+//         "esri/views/MapView",
+//         "esri/layers/FeatureLayer",
+//         "esri/layers/GraphicsLayer",
+//         "esri/Graphic"
+//     ], function (WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic) {
+//         // Инициализация карты
+//         const webMap = new WebMap({
+//             portalItem: { id: msaMapData.portalItemId }
+//         });
+//
+//         const view = new MapView({
+//             container: "viewDiv",
+//             map: webMap,
+//             zoom: 5,
+//             center: [-95, 37]
+//         });
+//
+//         const featureLayer = new FeatureLayer({
+//             url: msaMapData.featureLayerUrl,
+//             opacity: 0 // Делаем основной слой полностью прозрачным
+//         });
+//
+//         const graphicsLayer = new GraphicsLayer(); // Новый слой для рендеринга
+//         webMap.addMany([featureLayer, graphicsLayer]);
+//
+//         // ==========================
+//         // Отрисовка регионов
+//         // ==========================
+//         function renderRegions() {
+//             graphicsLayer.removeAll();
+//
+//             featureLayer.queryFeatures({
+//                 where: "1=1",
+//                 returnGeometry: true,
+//                 outFields: ["CBSAFP"]
+//             }).then(function (result) {
+//                 result.features.forEach(feature => {
+//                     const mapId = feature.attributes.CBSAFP;
+//                     const region = msaMapData.regions.find(r => r.map_id == mapId);
+//
+//                     let fillColor = [128, 128, 128, 0.3]; // Серый оттенок, прозрачный 0.3
+//
+//                     if (region) {
+//                         fillColor = [0, 0, 255, 0.8]; // Синий, если есть map_id
+//                     } else {
+//                         fillColor = [0, 0, 255, 0.05]; // Синий с прозрачностью 0.1
+//                     }
+//
+//                     const graphic = new Graphic({
+//                         geometry: feature.geometry,
+//                         symbol: {
+//                             type: "simple-fill",
+//                             color: fillColor,
+//                             outline: { color: [128, 128, 128, 0.6], width: 1 }
+//                         }
+//                     });
+//
+//                     graphicsLayer.add(graphic); // Добавляем графику в новый слой
+//                 });
+//             });
+//         }
+//
+//         // ==========================
+//         // Инициализация
+//         // ==========================
+//         view.when(() => {
+//             renderRegions();
+//         });
+//     });
+// });
+
+/*
+jQuery(document).ready(function ($) {
+    require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/layers/GraphicsLayer",
+        "esri/Graphic"
+    ], function (WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic) {
+        // Ініціалізація карти
+        const webMap = new WebMap({
+            portalItem: { id: msaMapData.portalItemId }
+        });
+
+        const view = new MapView({
+            container: "viewDiv",
+            map: webMap,
+            zoom: 5,
+            center: [-95, 37]
+        });
+
+        // Базовий та активний шари
+        const featureLayer = new FeatureLayer({
+            url: msaMapData.featureLayerUrl,
+            opacity: 0
+        });
+        const graphicsLayer = new GraphicsLayer();
+        const activeGraphicsLayer = new GraphicsLayer(); // Шар для активних регіонів
+        webMap.addMany([featureLayer, graphicsLayer, activeGraphicsLayer]);
+
+        let allFeatures = []; // Зберігаємо всі регіони
+        let currentIds = [];  // Масив активних GEOID
+
+        // ==========================
+        // Завантаження всіх регіонів
+        // ==========================
+        function loadRegions() {
+            featureLayer.queryFeatures({
+                where: "1=1",
+                returnGeometry: true,
+                outFields: ["GEOID"]
+            }).then(response => {
+                allFeatures = response.features;
+                renderRegions();
+            });
+        }
+
+        // ==========================
+        // Функція для малювання фону
+        // ==========================
+        function renderRegions() {
+            graphicsLayer.removeAll();
+            allFeatures.forEach(feature => {
+                const mapId = feature.attributes.GEOID;
+                const region = msaMapData.regions.find(r => r.map_id == mapId);
+
+                const graphic = new Graphic({
+                    geometry: feature.geometry,
+                    symbol: {
+                        type: "simple-fill",
+                        color: region ? [0, 0, 255, 0.3] : [200, 200, 200, 0.1],
+                        outline: { color: [100, 100, 100], width: 0.5 }
+                    }
+                });
+                graphicsLayer.add(graphic);
+            });
+        }
+
+        // ==========================
+        // Обробка кліку на карті
+        // ==========================
+        view.on("click", function (event) {
+            view.hitTest(event).then(function (response) {
+                const result = response.results[0];
+                if (result && result.graphic) {
+                    const mapId = result.graphic.attributes.GEOID;
+
+                    if (!currentIds.includes(mapId)) {
+                        addRegion(mapId, result.graphic.geometry);
+                    } else {
+                        removeRegion(mapId);
+                    }
+                }
+            });
+        });
+
+        // Додаємо активний регіон
+        function addRegion(mapId, geometry) {
+            currentIds.push(mapId);
+            const graphic = new Graphic({
+                geometry: geometry,
+                attributes: { GEOID: mapId },
+                symbol: {
+                    type: "simple-fill",
+                    color: [255, 165, 0, 0.8],
+                    outline: { color: [50, 50, 150], width: 1 }
+                }
+            });
+            activeGraphicsLayer.add(graphic);
+            console.log(`Регіон ${mapId} додано.`);
+        }
+
+        // Видаляємо активний регіон
+        function removeRegion(mapId) {
+            currentIds = currentIds.filter(id => id !== mapId);
+            const graphic = activeGraphicsLayer.graphics.find(g => g.attributes.GEOID === mapId);
+            if (graphic) {
+                activeGraphicsLayer.remove(graphic);
+                console.log(`Регіон ${mapId} видалено.`);
+            }
+        }
+
+        // ==========================
+        // Активуємо регіони по GEOID
+        // ==========================
+        function activateRegionsByGEOID(geoids) {
+            geoids.forEach(mapId => {
+                if (!currentIds.includes(mapId)) {
+                    const feature = allFeatures.find(f => f.attributes.GEOID === mapId);
+                    if (feature) addRegion(mapId, feature.geometry);
+                }
+            });
+        }
+
+        // Виносимо функцію у глобальний простір для виклику
+        window.activateRegionsByGEOID = activateRegionsByGEOID;
+
+        // ==========================
+        // Ініціалізація карти
+        // ==========================
+        view.when(() => {
+            loadRegions();
+        });
+    });
+});
+*/
+
+
+
