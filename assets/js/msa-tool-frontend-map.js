@@ -346,64 +346,122 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        /*
+                function updateSelector(regionSlug, mapId, add) {
+                    const mapIdStr = String(mapId);
+                    const selectorContainer = $("#msa-custom-select .msa-selected-items");
+                    const placeholder = $("#msa-custom-select .msa-placeholder");
+                    const option = $(`.msa-option[data-slug="${regionSlug}"]`);
+
+                    // If trying to remove Orlando, do nothing
+                    if (regionSlug === alwaysActiveRegion && !add) {
+                        return;
+                    }
+
+                    if (add) {
+                        if (!selectedRegions.includes(regionSlug)) {
+                            // Check limit: excluding Orlando
+                            const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+                            if (otherSelectedCount >= maxRegions) {
+                                alert("You can select up to 5 additional locations besides Orlando.");
+                                return;
+                            }
+
+                            selectedRegions.push(regionSlug);
+
+                            const selectedItem = $("<span>")
+                                .addClass("msa-selected-item")
+                                .attr("data-slug", regionSlug)
+                                .attr("data-map-id", mapIdStr)
+                                .text(option.text())
+                                .on("click", function () {
+                                    updateSelector(regionSlug, mapIdStr, false);
+                                });
+
+                            selectorContainer.append(selectedItem);
+                            option.addClass("selected");
+
+                            placeholder.hide();
+                        }
+                    } else {
+                        // Removing a region other than Orlando
+                        selectedRegions = selectedRegions.filter(slug => slug !== regionSlug);
+                        selectorContainer.find(`[data-slug="${regionSlug}"]`).remove();
+                        option.removeClass("selected");
+
+                        if (selectedRegions.length === 1 && selectedRegions[0] === alwaysActiveRegion) {
+                            placeholder.show();
+                        }
+                    }
+
+                    updateTableColumns();
+                    const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
+                    updateRegionsColors(activeMapIds);
+                }
+        */
         function updateSelector(regionSlug, mapId, add) {
             const mapIdStr = String(mapId);
             const selectorContainer = $("#msa-custom-select .msa-selected-items");
             const placeholder = $("#msa-custom-select .msa-placeholder");
             const option = $(`.msa-option[data-slug="${regionSlug}"]`);
 
-            // If trying to remove Orlando, do nothing
-            if (regionSlug === alwaysActiveRegion && !add) {
-                return;
-            }
+            if (regionSlug === alwaysActiveRegion && !add) return;
 
             if (add) {
                 if (!selectedRegions.includes(regionSlug)) {
-                    // Check limit: excluding Orlando
                     const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
-                    if (otherSelectedCount >= maxRegions) {
-                        alert("You can select up to 5 additional locations besides Orlando.");
-                        return;
-                    }
+                    if (otherSelectedCount >= maxRegions) return;
 
                     selectedRegions.push(regionSlug);
 
                     const selectedItem = $("<span>")
                         .addClass("msa-selected-item")
                         .attr("data-slug", regionSlug)
-                        .attr("data-map-id", mapIdStr)
                         .text(option.text())
-                        .on("click", function () {
-                            updateSelector(regionSlug, mapIdStr, false);
-                        });
+                        .on("click", () => updateSelector(regionSlug, mapIdStr, false));
 
                     selectorContainer.append(selectedItem);
                     option.addClass("selected");
-
                     placeholder.hide();
                 }
             } else {
-                // Removing a region other than Orlando
                 selectedRegions = selectedRegions.filter(slug => slug !== regionSlug);
                 selectorContainer.find(`[data-slug="${regionSlug}"]`).remove();
                 option.removeClass("selected");
-
-                if (selectedRegions.length === 1 && selectedRegions[0] === alwaysActiveRegion) {
-                    placeholder.show();
-                }
+                if (selectedRegions.length === 1 && selectedRegions[0] === alwaysActiveRegion) placeholder.show();
             }
 
             updateTableColumns();
+            updateAddLocationButton(); // Обновляем кнопку
             const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
             updateRegionsColors(activeMapIds);
         }
 
+
         function updateTableColumns() {
             $(".msa-region-column").each(function () {
                 const slug = $(this).data("region-slug");
-                $(this).toggle(selectedRegions.includes(slug));
+                const isRankColumn = $(this).hasClass("msa-rank-column");
+
+                // Показываем только выбранные регионы и их Rank
+                if (selectedRegions.includes(slug)) {
+                    $(this).show();
+                } else {
+                    // Rank колонка скрывается вместе с основной колонкой
+                    $(this).hide();
+                }
             });
         }
+
+        function updateAddLocationButton() {
+            const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+            if (otherSelectedCount >= maxRegions) {
+                $("#msa-add-location").addClass("hidden");
+            } else {
+                $("#msa-add-location").removeClass("hidden");
+            }
+        }
+
 
         $(document).on("click", ".msa-option", function () {
             const regionSlug = $(this).data("slug");

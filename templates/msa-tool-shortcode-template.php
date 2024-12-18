@@ -12,6 +12,8 @@
         <div id="msa-custom-select" class="msa-custom-select">
             <div class="msa-selected-items">
                 <span class="msa-placeholder">Choose up to 5 locations</span>
+                <span id="msa-add-location" class="msa-add-location">+ Add Location</span>
+
             </div>
             <ul class="msa-options">
                 <li>
@@ -32,6 +34,19 @@
 
         <!-- Table Section -->
         <div id="msa-tool-content">
+            <!-- Include Rank Checkbox -->
+            <div class="msa-rank-toggle">
+                <label>
+                    <input type="checkbox" id="msa-include-rank" checked>
+                    Include Rank
+                </label>
+            </div>
+            <!-- Toggle All Button -->
+            <div class="msa-toggle-all-container">
+                <button id="msa-toggle-all">Toggle All</button>
+            </div>
+
+
             <?php foreach ($data['categories'] as $category => $indicators): ?>
                 <div class="msa-category">
 
@@ -44,6 +59,8 @@
 
                     <!-- Category Content -->
                     <div class="msa-category-content" style="display: none;">
+
+
                         <table class="msa-table">
                             <thead>
                             <tr>
@@ -59,9 +76,12 @@
                                 // Выводим регионы в отсортированном порядке
                                 foreach ($data['regions'] as $region_name => $region_data): ?>
                                     <th class="msa-region-column"
-                                        data-region-slug="<?php echo esc_attr($region_data['slug']); ?>"
-                                        style="<?php echo ($region_name === 'Orlando, FL') ? '' : 'display: none;'; ?>">
+                                        data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
                                         <?php echo esc_html($region_name); ?>
+                                    </th>
+                                    <th class="msa-region-column msa-rank-column"
+                                        data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                        Rank
                                     </th>
                                 <?php endforeach; ?>
                             </tr>
@@ -69,19 +89,29 @@
 
                             <tbody>
                             <?php foreach ($indicators as $indicator): ?>
-                                <tr>
-                                    <td><?php echo esc_html($indicator); ?></td>
-                                    <?php foreach ($data['regions'] as $region_name => $region_data): ?>
-                                        <td class="msa-region-column"
-                                            data-region-slug="<?php echo esc_attr($region_data['slug']); ?>"
-                                            style="<?php echo ($region_data['slug'] === "orlando-fl") ? '' : 'display: none;'; ?>">
-                                            <?php echo isset($region_data['categories'][$category][$indicator])
-                                                ? esc_html($region_data['categories'][$category][$indicator])
-                                                : '-'; ?>
-                                        </td>
-                                    <?php endforeach; ?>
-                                </tr>
+                                <?php if (strpos($indicator, 'Rank') === false): // Исключаем строки с Rank ?>
+                                    <tr>
+                                        <td><?php echo esc_html($indicator); ?></td>
+                                        <?php foreach ($data['regions'] as $region_name => $region_data): ?>
+                                            <?php
+                                            $value = $region_data['categories'][$category][$indicator]['value'] ?? '-';
+                                            $rank = $region_data['categories'][$category][$indicator]['rank'] ?? '-';
+                                            ?>
+                                            <td class="msa-region-column"
+                                                data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                                <?php echo esc_html($value); ?>
+                                            </td>
+                                            <td class="msa-region-column msa-rank-column"
+                                                data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                                <?php echo esc_html($rank); ?>
+                                            </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+
+                                <?php endif; ?>
                             <?php endforeach; ?>
+
+
                             </tbody>
                         </table>
                     </div>
