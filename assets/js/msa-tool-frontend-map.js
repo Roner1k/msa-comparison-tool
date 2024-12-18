@@ -1,4 +1,4 @@
-
+/*
 jQuery(document).ready(function ($) {
 
 
@@ -166,246 +166,10 @@ jQuery(document).ready(function ($) {
     });
 });
 
-
-
-/*
-jQuery(document).ready(function ($) {
-    require([
-        "esri/WebMap",
-        "esri/views/MapView",
-        "esri/layers/FeatureLayer",
-        "esri/Graphic"
-    ], function (WebMap, MapView, FeatureLayer, Graphic) {
-        // Инициализация карты
-        const webMap = new WebMap({
-            portalItem: { id: msaMapData.portalItemId }
-        });
-
-        const view = new MapView({
-            container: "viewDiv",
-            map: webMap,
-            zoom: 5,
-            center: [-95, 37]
-        });
-
-        // Базовый слой со стилем
-        const featureLayer = new FeatureLayer({
-            url: msaMapData.featureLayerUrl,
-            renderer: {
-                type: "simple",
-                symbol: {
-                    type: "simple-fill",
-                    color: [200, 200, 255, 0.1], // Тусклый голубой для всех регионов
-                    outline: {
-                        color: [100, 100, 200, 0.3],
-                        width: 1
-                    }
-                }
-            },
-            popupEnabled: false
-        });
-
-        webMap.add(featureLayer);
-
-        // Подсветка активных регионов
-        function highlightRegions(activeMapIds) {
-            console.log("Highlighting these Map IDs:", activeMapIds); // Проверка перед запросом
-
-            if (!activeMapIds || activeMapIds.length === 0) {
-                view.graphics.removeAll();
-                return;
-            }
-
-            const query = featureLayer.createQuery();
-            query.where = `CBSAFP IN (${activeMapIds.map(id => `'${id}'`).join(",")})`;
-            query.returnGeometry = true;
-
-            featureLayer.queryFeatures(query).then(function (result) {
-                view.graphics.removeAll();
-
-                result.features.forEach(feature => {
-                    const highlightSymbol = {
-                        type: "simple-fill",
-                        color: [0, 0, 255, 0.6],
-                        outline: {
-                            color: [0, 0, 150],
-                            width: 2
-                        }
-                    };
-
-                    const graphic = new Graphic({
-                        geometry: feature.geometry,
-                        symbol: highlightSymbol
-                    });
-
-                    view.graphics.add(graphic);
-                });
-
-                console.log(`Successfully highlighted regions: ${activeMapIds.join(", ")}`);
-            }).catch(function (error) {
-                console.error("Error highlighting regions:", error);
-            });
-        }
-
-
-        // Логика синхронизации
-        let selectedRegions = [];
-        const maxRegions = 5;
-
-        function updateSelector(regionSlug, mapId, add) {
-            const selectorContainer = $("#msa-custom-select .msa-selected-items");
-            const placeholder = $("#msa-custom-select .msa-placeholder");
-            const option = $(`.msa-option[data-slug="${regionSlug}"]`);
-
-            if (add) {
-                if (!selectedRegions.includes(regionSlug)) {
-                    selectedRegions.push(regionSlug);
-
-                    // Добавляем регион в селектор
-                    const selectedItem = $("<span>")
-                        .addClass("msa-selected-item")
-                        .attr("data-slug", regionSlug)
-                        .attr("data-map-id", mapId)
-                        .text(option.text())
-                        .on("click", () => updateSelector(regionSlug, mapId, false));
-
-                    selectorContainer.append(selectedItem);
-                    option.addClass("selected");
-
-                    placeholder.hide();
-                }
-            } else {
-                selectedRegions = selectedRegions.filter(slug => slug !== regionSlug);
-                selectorContainer.find(`[data-slug="${regionSlug}"]`).remove();
-                option.removeClass("selected");
-
-                if (selectedRegions.length === 0) placeholder.show();
-            }
-
-            // Собираем активные map IDs
-            const activeMapIds = selectedRegions
-                .map(slug => $(`.msa-option[data-slug="${slug}"]`).data("map-id"))
-                .filter(id => id !== undefined && id !== ""); // Проверяем на валидность
-
-            console.log("Active Map IDs:", activeMapIds); // Отладка - проверяем IDs
-
-            highlightRegions(activeMapIds); // Передаём актуальные ID для подсветки
-        }
-
-
-        // Обработка клика на карте
-        view.on("click", async function (event) {
-            const query = featureLayer.createQuery();
-            query.geometry = event.mapPoint;
-            query.returnGeometry = false;
-            query.outFields = ["*"];
-
-            try {
-                const result = await featureLayer.queryFeatures(query);
-                if (result.features.length > 0) {
-                    const mapId = result.features[0].attributes.CBSAFP;
-                    const region = msaMapData.regions.find(r => r.map_id == mapId);
-
-                    if (region) {
-                        updateSelector(region.region_slug, mapId, !selectedRegions.includes(region.region_slug));
-                    }
-                }
-            } catch (error) {
-                console.error("Error querying map region:", error);
-            }
-        });
-
-        // Обработка клика в селекторе
-        $(document).on("click", ".msa-option", function () {
-            const regionSlug = $(this).data("slug");
-            const mapId = $(this).data("map-id");
-            updateSelector(regionSlug, mapId, !selectedRegions.includes(regionSlug));
-        });
-
-        view.when(() => {
-            console.log("Custom base styles applied to the map.");
-            const activeMapIds = selectedRegions.map(slug => $(`.msa-option[data-slug="${slug}"]`).data("map-id"));
-            highlightRegions(activeMapIds);
-        });
-    });
-});
 */
 
 
-// jQuery(document).ready(function ($) {
-//     require([
-//         "esri/WebMap",
-//         "esri/views/MapView",
-//         "esri/layers/FeatureLayer",
-//         "esri/layers/GraphicsLayer",
-//         "esri/Graphic"
-//     ], function (WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic) {
-//         // Инициализация карты
-//         const webMap = new WebMap({
-//             portalItem: { id: msaMapData.portalItemId }
-//         });
-//
-//         const view = new MapView({
-//             container: "viewDiv",
-//             map: webMap,
-//             zoom: 5,
-//             center: [-95, 37]
-//         });
-//
-//         const featureLayer = new FeatureLayer({
-//             url: msaMapData.featureLayerUrl,
-//             opacity: 0 // Делаем основной слой полностью прозрачным
-//         });
-//
-//         const graphicsLayer = new GraphicsLayer(); // Новый слой для рендеринга
-//         webMap.addMany([featureLayer, graphicsLayer]);
-//
-//         // ==========================
-//         // Отрисовка регионов
-//         // ==========================
-//         function renderRegions() {
-//             graphicsLayer.removeAll();
-//
-//             featureLayer.queryFeatures({
-//                 where: "1=1",
-//                 returnGeometry: true,
-//                 outFields: ["CBSAFP"]
-//             }).then(function (result) {
-//                 result.features.forEach(feature => {
-//                     const mapId = feature.attributes.CBSAFP;
-//                     const region = msaMapData.regions.find(r => r.map_id == mapId);
-//
-//                     let fillColor = [128, 128, 128, 0.3]; // Серый оттенок, прозрачный 0.3
-//
-//                     if (region) {
-//                         fillColor = [0, 0, 255, 0.8]; // Синий, если есть map_id
-//                     } else {
-//                         fillColor = [0, 0, 255, 0.05]; // Синий с прозрачностью 0.1
-//                     }
-//
-//                     const graphic = new Graphic({
-//                         geometry: feature.geometry,
-//                         symbol: {
-//                             type: "simple-fill",
-//                             color: fillColor,
-//                             outline: { color: [128, 128, 128, 0.6], width: 1 }
-//                         }
-//                     });
-//
-//                     graphicsLayer.add(graphic); // Добавляем графику в новый слой
-//                 });
-//             });
-//         }
-//
-//         // ==========================
-//         // Инициализация
-//         // ==========================
-//         view.when(() => {
-//             renderRegions();
-//         });
-//     });
-// });
-
+// альтернативна карта з синх регыонами
 /*
 jQuery(document).ready(function ($) {
     require([
@@ -415,7 +179,11 @@ jQuery(document).ready(function ($) {
         "esri/layers/GraphicsLayer",
         "esri/Graphic"
     ], function (WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic) {
-        // Ініціалізація карти
+        // Create a WHERE clause for the needed regions only
+        const selectedMapIds = msaMapData.regions.map(r => `'${r.map_id}'`).join(",");
+        const whereClause = `CBSAFP IN (${selectedMapIds})`;
+
+        // Initialize the map with portal item
         const webMap = new WebMap({
             portalItem: { id: msaMapData.portalItemId }
         });
@@ -427,121 +195,282 @@ jQuery(document).ready(function ($) {
             center: [-95, 37]
         });
 
-        // Базовий та активний шари
+        // Create the feature layer and make it transparent
         const featureLayer = new FeatureLayer({
             url: msaMapData.featureLayerUrl,
             opacity: 0
         });
+
+        // Create a separate graphics layer to render the needed regions
         const graphicsLayer = new GraphicsLayer();
-        const activeGraphicsLayer = new GraphicsLayer(); // Шар для активних регіонів
-        webMap.addMany([featureLayer, graphicsLayer, activeGraphicsLayer]);
+        webMap.addMany([featureLayer, graphicsLayer]);
 
-        let allFeatures = []; // Зберігаємо всі регіони
-        let currentIds = [];  // Масив активних GEOID
-
-        // ==========================
-        // Завантаження всіх регіонів
-        // ==========================
-        function loadRegions() {
-            featureLayer.queryFeatures({
-                where: "1=1",
-                returnGeometry: true,
-                outFields: ["GEOID"]
-            }).then(response => {
-                allFeatures = response.features;
-                renderRegions();
-            });
-        }
-
-        // ==========================
-        // Функція для малювання фону
-        // ==========================
+        // Render only the filtered regions
         function renderRegions() {
             graphicsLayer.removeAll();
-            allFeatures.forEach(feature => {
-                const mapId = feature.attributes.GEOID;
-                const region = msaMapData.regions.find(r => r.map_id == mapId);
 
-                const graphic = new Graphic({
-                    geometry: feature.geometry,
-                    symbol: {
-                        type: "simple-fill",
-                        color: region ? [0, 0, 255, 0.3] : [200, 200, 200, 0.1],
-                        outline: { color: [100, 100, 100], width: 0.5 }
-                    }
+            featureLayer.queryFeatures({
+                where: whereClause,
+                returnGeometry: true,
+                outFields: ["GEOID"]
+            }).then(function (result) {
+                result.features.forEach(feature => {
+                    // If the feature passes the filter, paint it blue
+                    const fillColor = [0, 0, 255, 0.8]; // Blue with 0.8 opacity
+
+                    const graphic = new Graphic({
+                        geometry: feature.geometry,
+                        symbol: {
+                            type: "simple-fill",
+                            color: fillColor,
+                            outline: { color: [128, 128, 128, 0.6], width: 1 }
+                        }
+                    });
+
+                    graphicsLayer.add(graphic);
                 });
-                graphicsLayer.add(graphic);
+            }).catch(function (error) {
+                console.error("Error querying features:", error);
             });
         }
 
-        // ==========================
-        // Обробка кліку на карті
-        // ==========================
-        view.on("click", function (event) {
-            view.hitTest(event).then(function (response) {
-                const result = response.results[0];
-                if (result && result.graphic) {
-                    const mapId = result.graphic.attributes.GEOID;
-
-                    if (!currentIds.includes(mapId)) {
-                        addRegion(mapId, result.graphic.geometry);
-                    } else {
-                        removeRegion(mapId);
-                    }
-                }
-            });
-        });
-
-        // Додаємо активний регіон
-        function addRegion(mapId, geometry) {
-            currentIds.push(mapId);
-            const graphic = new Graphic({
-                geometry: geometry,
-                attributes: { GEOID: mapId },
-                symbol: {
-                    type: "simple-fill",
-                    color: [255, 165, 0, 0.8],
-                    outline: { color: [50, 50, 150], width: 1 }
-                }
-            });
-            activeGraphicsLayer.add(graphic);
-            console.log(`Регіон ${mapId} додано.`);
-        }
-
-        // Видаляємо активний регіон
-        function removeRegion(mapId) {
-            currentIds = currentIds.filter(id => id !== mapId);
-            const graphic = activeGraphicsLayer.graphics.find(g => g.attributes.GEOID === mapId);
-            if (graphic) {
-                activeGraphicsLayer.remove(graphic);
-                console.log(`Регіон ${mapId} видалено.`);
-            }
-        }
-
-        // ==========================
-        // Активуємо регіони по GEOID
-        // ==========================
-        function activateRegionsByGEOID(geoids) {
-            geoids.forEach(mapId => {
-                if (!currentIds.includes(mapId)) {
-                    const feature = allFeatures.find(f => f.attributes.GEOID === mapId);
-                    if (feature) addRegion(mapId, feature.geometry);
-                }
-            });
-        }
-
-        // Виносимо функцію у глобальний простір для виклику
-        window.activateRegionsByGEOID = activateRegionsByGEOID;
-
-        // ==========================
-        // Ініціалізація карти
-        // ==========================
+        // Once the view is ready, render the filtered regions
         view.when(() => {
-            loadRegions();
+            renderRegions();
         });
     });
 });
 */
+// All comments in English
+// This version ensures that Orlando (orlando-fl) is always active and cannot be removed.
+// Orlando does not count towards the 5-region limit. The user can select up to 5 additional regions besides Orlando.
+//
+// Changes from previous version:
+// - When initializing selectedRegions, "orlando-fl" is included and never removed.
+// - In the updateSelector function, if the user attempts to remove "orlando-fl", we ignore that request.
+// - When checking the limit of 5, we count only the other regions, not Orlando.
 
+jQuery(document).ready(function ($) {
+    require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/layers/GraphicsLayer",
+        "esri/Graphic"
+    ], function (WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic) {
+        // Orlando is always active and cannot be removed
+        const alwaysActiveRegion = "orlando-fl";
+        let selectedRegions = [alwaysActiveRegion];
 
+        // Max regions (not counting Orlando)
+        const maxRegions = 5;
 
+        const webMap = new WebMap({
+            portalItem: {
+                id: msaMapData.portalItemId
+            }
+        });
+
+        const view = new MapView({
+            container: "viewDiv",
+            map: webMap,
+            zoom: 5,
+            center: [-95, 37]
+        });
+
+        const featureLayer = new FeatureLayer({
+            url: msaMapData.featureLayerUrl,
+            opacity: 0
+        });
+
+        const graphicsLayer = new GraphicsLayer();
+        webMap.addMany([featureLayer, graphicsLayer]);
+
+        const allMapIds = msaMapData.regions.map(r => r.map_id);
+        const whereClause = `CBSAFP IN (${allMapIds.map(id => `'${id}'`).join(",")})`;
+
+        const allRegionsGraphics = {};
+
+        function renderBaseRegions() {
+            graphicsLayer.removeAll();
+
+            featureLayer.queryFeatures({
+                where: whereClause,
+                returnGeometry: true,
+                outFields: ["CBSAFP"]
+            }).then(function (result) {
+                result.features.forEach(feature => {
+                    const mapIdStr = String(feature.attributes.CBSAFP);
+
+                    const graphic = new Graphic({
+                        geometry: feature.geometry,
+                        symbol: {
+                            type: "simple-fill",
+                            color: [0, 0, 255, 0.3], // Blue by default
+                            outline: {color: [0, 0, 255], width: 1}
+                        }
+                    });
+
+                    graphicsLayer.add(graphic);
+                    allRegionsGraphics[mapIdStr] = graphic;
+                });
+
+                const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
+                updateRegionsColors(activeMapIds);
+            }).catch(function (error) {
+                console.error("Error querying base regions:", error);
+            });
+        }
+
+        // Update the colors of regions based on selection
+        function updateRegionsColors(selectedMapIds) {
+            const selectedSet = new Set(selectedMapIds);
+
+            for (const mapId in allRegionsGraphics) {
+                const graphic = allRegionsGraphics[mapId];
+                if (selectedSet.has(mapId)) {
+                    // Orange for selected
+                    graphic.symbol = {
+                        type: "simple-fill",
+                        color: [255, 165, 0, 0.8], // Orange
+                        outline: {color: [255, 165, 0], width: 2}
+                    };
+                } else {
+                    // Blue for not selected
+                    graphic.symbol = {
+                        type: "simple-fill",
+                        color: [0, 0, 255, 0.3],
+                        outline: {color: [0, 0, 255], width: 1}
+                    };
+                }
+            }
+        }
+
+        function updateSelector(regionSlug, mapId, add) {
+            const mapIdStr = String(mapId);
+            const selectorContainer = $("#msa-custom-select .msa-selected-items");
+            const placeholder = $("#msa-custom-select .msa-placeholder");
+            const option = $(`.msa-option[data-slug="${regionSlug}"]`);
+
+            // If trying to remove Orlando, do nothing
+            if (regionSlug === alwaysActiveRegion && !add) {
+                return;
+            }
+
+            if (add) {
+                if (!selectedRegions.includes(regionSlug)) {
+                    // Check limit: excluding Orlando
+                    const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+                    if (otherSelectedCount >= maxRegions) {
+                        alert("You can select up to 5 additional locations besides Orlando.");
+                        return;
+                    }
+
+                    selectedRegions.push(regionSlug);
+
+                    const selectedItem = $("<span>")
+                        .addClass("msa-selected-item")
+                        .attr("data-slug", regionSlug)
+                        .attr("data-map-id", mapIdStr)
+                        .text(option.text())
+                        .on("click", function () {
+                            updateSelector(regionSlug, mapIdStr, false);
+                        });
+
+                    selectorContainer.append(selectedItem);
+                    option.addClass("selected");
+
+                    placeholder.hide();
+                }
+            } else {
+                // Removing a region other than Orlando
+                selectedRegions = selectedRegions.filter(slug => slug !== regionSlug);
+                selectorContainer.find(`[data-slug="${regionSlug}"]`).remove();
+                option.removeClass("selected");
+
+                if (selectedRegions.length === 1 && selectedRegions[0] === alwaysActiveRegion) {
+                    placeholder.show();
+                }
+            }
+
+            updateTableColumns();
+            const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
+            updateRegionsColors(activeMapIds);
+        }
+
+        function updateTableColumns() {
+            $(".msa-region-column").each(function () {
+                const slug = $(this).data("region-slug");
+                $(this).toggle(selectedRegions.includes(slug));
+            });
+        }
+
+        $(document).on("click", ".msa-option", function () {
+            const regionSlug = $(this).data("slug");
+            const mapId = String($(this).data("map-id"));
+            const isSelected = selectedRegions.includes(regionSlug);
+
+            // If not selected and we are at max (excluding Orlando), show alert
+            if (!isSelected && regionSlug !== alwaysActiveRegion) {
+                const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+                if (otherSelectedCount >= maxRegions) {
+                    alert("You can select up to 5 additional locations besides Orlando.");
+                    return;
+                }
+            }
+
+            updateSelector(regionSlug, mapId, !isSelected);
+        });
+
+        view.on("click", async function (event) {
+            const query = featureLayer.createQuery();
+            query.geometry = event.mapPoint;
+            query.returnGeometry = false;
+            query.outFields = ["*"];
+
+            try {
+                const result = await featureLayer.queryFeatures(query);
+                if (result.features.length > 0) {
+                    const mapId = String(result.features[0].attributes.CBSAFP);
+                    const region = msaMapData.regions.find(r => String(r.map_id) === mapId);
+
+                    if (region) {
+                        const regionSlug = region.region_slug;
+
+                        // Check if region is Orlando
+                        if (regionSlug === alwaysActiveRegion) {
+                            // Since Orlando can't be removed or toggled off, do nothing if already selected.
+                            if (!selectedRegions.includes(alwaysActiveRegion)) {
+                                // Shouldn't happen since we initialize with Orlando anyway.
+                                selectedRegions.push(alwaysActiveRegion);
+                                updateTableColumns();
+                            }
+                            // Just update colors (it should already be orange)
+                            const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
+                            updateRegionsColors(activeMapIds);
+                            return;
+                        }
+
+                        // Check max if trying to add
+                        if (!selectedRegions.includes(regionSlug)) {
+                            const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+                            if (otherSelectedCount >= maxRegions) {
+                                alert("You can select up to 5 additional locations besides Orlando.");
+                                return;
+                            }
+                        }
+
+                        updateSelector(regionSlug, mapId, !selectedRegions.includes(regionSlug));
+                    }
+                }
+            } catch (error) {
+                console.error("Error querying map region:", error);
+            }
+        });
+
+        view.when(() => {
+            updateTableColumns();
+            renderBaseRegions();
+        });
+    });
+});
