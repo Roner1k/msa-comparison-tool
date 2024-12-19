@@ -480,6 +480,7 @@ jQuery(document).ready(function ($) {
             updateSelector(regionSlug, mapId, !isSelected);
         });
 
+
         view.on("click", async function (event) {
             const query = featureLayer.createQuery();
             query.geometry = event.mapPoint;

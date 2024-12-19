@@ -101,7 +101,7 @@ class MSA_Tool_Database
 
         }
 
-        error_log("Grouped data with map_id: " . print_r($grouped_data, true));
+//        error_log("Grouped data with map_id: " . print_r($grouped_data, true));
 
         return $grouped_data;
     }

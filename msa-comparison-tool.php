@@ -20,15 +20,29 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-shortcode.php'
 require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-shortcode-handler.php';
 
 
+require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-ajax.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-pdf-export.php';
+
+
+
 register_activation_hook(__FILE__, ['MSA_Tool_Activator', 'activate']);
 register_deactivation_hook(__FILE__, ['MSA_Tool_Deactivator', 'deactivate']);
 
-if (is_admin()) {
+
+
+
+if (defined('DOING_AJAX') && DOING_AJAX) {
+    // Только для AJAX-запросов
+    MSA_Tool_Ajax::init_hooks();
+} elseif (is_admin()) {
+    // Только для админки (панель администратора)
     MSA_Tool_Admin::init();
 } else {
+    // Только для фронтенда (публичная часть)
     MSA_Tool_Shortcode::init();
-
 }
+
+
 add_action('wp_enqueue_scripts', 'msa_tool_enqueue_arcgis_scripts');
 
 function msa_tool_enqueue_arcgis_scripts() {

@@ -45,6 +45,9 @@
             <div class="msa-toggle-all-container">
                 <button id="msa-toggle-all">Toggle All</button>
             </div>
+            <div>
+                <button id="view-hidden-fields">View Hidden Fields</button>
+            </div>
 
 
             <?php foreach ($data['categories'] as $category => $indicators): ?>
@@ -53,34 +56,29 @@
                     <!-- Category Header -->
                     <div class="msa-category-header">
                         <h3><?php echo esc_html($category); ?></h3>
-                        <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">Toggle
-                        </button>
+                        <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">Toggle</button>
                     </div>
 
                     <!-- Category Content -->
                     <div class="msa-category-content" style="display: none;">
-
-
                         <table class="msa-table">
                             <thead>
                             <tr>
                                 <th>Indicator</th>
                                 <?php
-                                // Сортируем регионы: Orlando, FL первым, остальные по алфавиту
+                                // Сортируем регионы
                                 uksort($data['regions'], function ($regionA, $regionB) {
-                                    if ($regionA === 'Orlando, FL') return -1; // Orlando, FL всегда первый
-                                    if ($regionB === 'Orlando, FL') return 1;  // Остальные регионы после
-                                    return strcasecmp($regionA, $regionB);     // Алфавитная сортировка
+                                    if ($regionA === 'Orlando, FL') return -1;
+                                    if ($regionB === 'Orlando, FL') return 1;
+                                    return strcasecmp($regionA, $regionB);
                                 });
 
-                                // Выводим регионы в отсортированном порядке
+                                // Выводим регионы
                                 foreach ($data['regions'] as $region_name => $region_data): ?>
-                                    <th class="msa-region-column"
-                                        data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                    <th class="msa-region-column" data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
                                         <?php echo esc_html($region_name); ?>
                                     </th>
-                                    <th class="msa-region-column msa-rank-column"
-                                        data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                    <th class="msa-region-column msa-rank-column" data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
                                         Rank
                                     </th>
                                 <?php endforeach; ?>
@@ -88,35 +86,39 @@
                             </thead>
 
                             <tbody>
+                            <?php $rowIndex = 0; // Счётчик строк ?>
                             <?php foreach ($indicators as $indicator): ?>
-                                <?php if (strpos($indicator, 'Rank') === false): // Исключаем строки с Rank ?>
-                                    <tr>
+                                <?php if (strpos($indicator, 'Rank') === false): ?>
+                                    <tr class="table-row" data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>">
                                         <td><?php echo esc_html($indicator); ?></td>
                                         <?php foreach ($data['regions'] as $region_name => $region_data): ?>
                                             <?php
                                             $value = $region_data['categories'][$category][$indicator]['value'] ?? '-';
                                             $rank = $region_data['categories'][$category][$indicator]['rank'] ?? '-';
                                             ?>
-                                            <td class="msa-region-column"
-                                                data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                            <td class="msa-region-column" data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
                                                 <?php echo esc_html($value); ?>
                                             </td>
-                                            <td class="msa-region-column msa-rank-column"
-                                                data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
+                                            <td class="msa-region-column msa-rank-column" data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
                                                 <?php echo esc_html($rank); ?>
                                             </td>
                                         <?php endforeach; ?>
+                                        <td>
+                                            <button class="hide-row-btn" data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>">×</button>
+                                        </td>
                                     </tr>
-
+                                    <?php $rowIndex++; ?>
                                 <?php endif; ?>
                             <?php endforeach; ?>
-
-
                             </tbody>
                         </table>
                     </div>
                 </div>
             <?php endforeach; ?>
+
+            <button id="export-pdf">Export to PDF</button>
+
+
         </div>
 
     </div>

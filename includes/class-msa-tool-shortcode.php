@@ -48,7 +48,12 @@ class MSA_Tool_Shortcode
 
         $map_data = MSA_Tool_Shortcode_Handler::get_map_data();
 
-        wp_localize_script('msa-tool-frontend', 'msaToolData', $data);
+
+//        wp_localize_script('msa-tool-frontend', 'msaToolData', array_merge($data, [
+//            'ajaxurl' => admin_url('admin-ajax.php') // Передаём ajaxurl для AJAX-запросов
+//        ]));
+
+//        wp_localize_script('msa-tool-frontend', 'msaToolData', $data);
         wp_localize_script('msa-tool-frontend-map', 'msaMapData', [
             'regions' => $map_data,
             'portalItemId' => '5c0c0595be9c422bb95ace1bc48f610e',
@@ -56,6 +61,9 @@ class MSA_Tool_Shortcode
             'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_view/FeatureServer',
             'activeRegions' => ['orlando-fl']
 
+        ]);
+        wp_localize_script('msa-tool-frontend', 'msaToolData', [
+            'ajaxurl' => admin_url('admin-ajax.php')
         ]);
 
         ob_start();
