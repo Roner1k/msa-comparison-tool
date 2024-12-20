@@ -4,6 +4,8 @@ class MSA_Tool_Activator
     public static function activate()
     {
         global $wpdb;
+        self::create_directories();
+
 
         // Для мультисайту
         if (is_multisite()) {
@@ -73,6 +75,30 @@ class MSA_Tool_Activator
             dbDelta($sql);
 
 //            error_log("Table created: $table_name");
+        }
+    }
+    private static function create_directories()
+    {
+        // Получаем путь к папке uploads
+        $upload_dir = wp_upload_dir();
+        $base_dir = $upload_dir['basedir'] . '/msa-tool';
+
+        // Папки, которые нужно создать
+        $directories = [
+            $base_dir,
+            $base_dir . '/exports',
+            $base_dir . '/imports',
+        ];
+
+        // Проходим по массиву и создаем каждую папку
+        foreach ($directories as $dir) {
+            if (!file_exists($dir)) {
+                if (wp_mkdir_p($dir)) {
+                    error_log("[MSA TOOL] Directory created: {$dir}");
+                } else {
+                    error_log("[MSA TOOL ERROR] Failed to create directory: {$dir}");
+                }
+            }
         }
     }
 }

@@ -1,155 +1,90 @@
 <?php
 
-
-class MSA_Tool_PDF_Export1
-{
-    /*
-        public static function generate_pdf($table_data) {
-            // Подключаем TCPDF
-            if (!class_exists('TCPDF')) {
-                require_once plugin_dir_path(__FILE__) . '../vendor/tecnickcom/tcpdf/tcpdf.php';
-            }
-
-            // Логируем данные таблицы
-            error_log('Received Table Data: ' . print_r($table_data, true));
-
-            // Создаем новый PDF-документ
-            $pdf = new TCPDF();
-            error_log('TCPDF object created successfully.');
-
-            // Устанавливаем свойства документа
-            $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('MSA Tool');
-            $pdf->SetTitle('Exported Data');
-            $pdf->SetSubject('Table Export');
-            $pdf->SetKeywords('PDF, Export, MSA');
-
-            // Настройки страницы
-            $pdf->SetMargins(10, 10, 10);
-            $pdf->SetAutoPageBreak(TRUE, 10);
-
-            $pdf->AddPage();
-            error_log('Page added to PDF.');
-
-            $pdf->SetFont('helvetica', '', 12);
-
-            // Генерируем HTML-контент для таблицы
-            $html = '<h1>Exported Table</h1>';
-            $html .= '<table border="1" cellpadding="5" cellspacing="0">';
-            $html .= '<thead><tr>';
-            foreach ($table_data['headers'] as $header) {
-                $html .= '<th>' . htmlspecialchars($header) . '</th>';
-            }
-            $html .= '</tr></thead><tbody>';
-            foreach ($table_data['rows'] as $row) {
-                $html .= '<tr>';
-                foreach ($row as $cell) {
-                    $html .= '<td>' . htmlspecialchars($cell) . '</td>';
-                }
-                $html .= '</tr>';
-            }
-            $html .= '</tbody></table>';
-
-            error_log('Generated HTML for PDF: ' . $html);
-
-            // Добавляем HTML-контент в PDF
-            $pdf->writeHTML($html, true, false, true, false, '');
-            error_log('Preparing to output PDF.');
-
-            // Проверяем, были ли отправлены заголовки
-            if (headers_sent()) {
-                error_log('Headers already sent before PDF output.');
-                return;
-            }
-
-            // Очищаем буферы вывода
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-
-            // Отправляем файл клиенту
-            $pdf->Output('exported_table.pdf', 'D'); // 'D' — загрузка файла
-            exit;
-        }
-    */
-}
+require_once plugin_dir_path(__FILE__) . '../vendor/tecnickcom/tcpdf/tcpdf.php';
 
 class MSA_Tool_PDF_Export
 {
-    public static function generate_pdf($table_data)
+
+    /**
+     * Генерация PDF и сохранение в директорию экспорта.
+     *
+     * @param string $content Содержимое PDF.
+     * @return string|false URL файла или false в случае ошибки.
+     */
+    public static function generate_pdf($categories)
     {
         error_log("[PDF EXPORT] Starting PDF generation...");
 
-        // Подключаем TCPDF
-        if (!class_exists('TCPDF')) {
-            require_once plugin_dir_path(__FILE__) . '../vendor/tecnickcom/tcpdf/tcpdf.php';
-            error_log("[PDF EXPORT] TCPDF class loaded.");
-        }
-
         try {
-            // Создаем новый PDF-документ
             $pdf = new TCPDF();
-            error_log("[PDF EXPORT] TCPDF object created.");
-
-            // Устанавливаем свойства документа
             $pdf->SetCreator(PDF_CREATOR);
             $pdf->SetAuthor('MSA Tool');
-            $pdf->SetTitle('Exported Data');
-            $pdf->SetSubject('Table Export');
+            $pdf->SetTitle('Orlando MSA Comparison Export');
+            $pdf->SetSubject('Export Example');
             $pdf->SetKeywords('PDF, Export, MSA');
-            error_log("[PDF EXPORT] PDF properties set.");
 
-            // Устанавливаем отступы
-            $pdf->SetMargins(10, 10, 10);
-            $pdf->SetAutoPageBreak(TRUE, 10);
-
-            // Добавляем страницу
+            $pdf->SetMargins(15, 15, 15);
+            $pdf->SetAutoPageBreak(TRUE, 20);
             $pdf->AddPage();
-            error_log("[PDF EXPORT] Page added.");
-
-            // Устанавливаем шрифт
             $pdf->SetFont('helvetica', '', 12);
-            error_log("[PDF EXPORT] Font set.");
 
-            // Генерируем HTML-контент для таблицы
-            $html = '<h1>Exported Table</h1>';
-            $html .= '<table border="1" cellpadding="5" cellspacing="0">';
-            $html .= '<thead><tr>';
-            foreach ($table_data['headers'] as $header) {
-                $html .= '<th>' . htmlspecialchars($header) . '</th>';
-            }
-            $html .= '</tr></thead><tbody>';
-            foreach ($table_data['rows'] as $row) {
-                $html .= '<tr>';
-                foreach ($row as $cell) {
-                    $html .= '<td>' . htmlspecialchars($cell) . '</td>';
+            foreach ($categories as $category) {
+                // Заголовок категории
+                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->Cell(0, 10, $category['name'], 0, 1, 'L');
+                $pdf->SetFont('helvetica', '', 12);
+
+                $html = '<table border="1" cellpadding="4" cellspacing="0">';
+
+                // Выводим заголовки таблицы (thead)
+                if (!empty($category['headers'])) {
+                    foreach ($category['headers'] as $headerRow) {
+                        $html .= '<tr>';
+                        foreach ($headerRow as $cell) {
+                            $html .= '<th>' . htmlspecialchars($cell) . '</th>';
+                        }
+                        $html .= '</tr>';
+                    }
                 }
-                $html .= '</tr>';
+
+                // Выводим строки таблицы (tbody)
+                if (!empty($category['rows'])) {
+                    foreach ($category['rows'] as $row) {
+                        $html .= '<tr>';
+                        foreach ($row as $cell) {
+                            $html .= '<td>' . htmlspecialchars($cell) . '</td>';
+                        }
+                        $html .= '</tr>';
+                    }
+                }
+
+                $html .= '</table>';
+
+                $pdf->writeHTML($html, true, false, true, false, '');
             }
-            $html .= '</tbody></table>';
-            error_log("[PDF EXPORT] HTML content generated: " . $html);
 
-            // Добавляем HTML-контент в PDF
-            $pdf->writeHTML($html, true, false, true, false, '');
-            error_log("[PDF EXPORT] HTML content written to PDF.");
+            $timestamp = time();
+            $upload_dir = wp_upload_dir();
+            $base_dir = $upload_dir['basedir'] . '/msa-tool/exports';
+            $base_url = $upload_dir['baseurl'] . '/msa-tool/exports';
+            $dynamic_filename = "Orlando-MSA-Comparison-{$timestamp}.pdf";
+            $output_path = "{$base_dir}/{$dynamic_filename}";
+            $file_url = "{$base_url}/{$dynamic_filename}";
 
-            // Сохраняем PDF на сервере
-            $output_path = plugin_dir_path(__FILE__) . '../exported_table.pdf';
+            // Создаем директорию если она не существует
+            if (!file_exists($base_dir)) {
+                wp_mkdir_p($base_dir);
+            }
+
             $pdf->Output($output_path, 'F');
-            error_log("[PDF EXPORT] PDF saved to server: " . $output_path);
+            error_log("[PDF EXPORT] PDF saved at: {$output_path}");
 
-            // Отправляем сообщение об успешном завершении
-            wp_send_json_success(['message' => 'PDF generated successfully!', 'file' => $output_path]);
+            return $file_url;
 
         } catch (Exception $e) {
-            error_log("[PDF EXPORT] Error occurred: " . $e->getMessage());
-            wp_send_json_error(['message' => 'Error generating PDF: ' . $e->getMessage()]);
+            error_log("[PDF EXPORT ERROR] " . $e->getMessage());
+            return null;
         }
     }
+
 }
-
-
-
-
-
-

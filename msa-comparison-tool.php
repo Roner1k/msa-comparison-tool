@@ -21,7 +21,6 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-shortcode-hand
 
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-ajax.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-msa-tool-pdf-export.php';
 
 
 
