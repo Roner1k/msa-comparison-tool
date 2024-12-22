@@ -1,4 +1,5 @@
 <?php
+
 class MSA_Tool_Activator
 {
     public static function activate()
@@ -30,28 +31,28 @@ class MSA_Tool_Activator
     {
         global $wpdb;
 
-        // Перевірка, чи існує таблиця
+        // Проверяем, существует ли таблица
         if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
             $charset_collate = $wpdb->get_charset_collate();
 
-            // SQL для створення таблиці msa_tool_data
             $sql = "CREATE TABLE $table_name (
-                id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                category VARCHAR(255) NOT NULL,
-                indicator VARCHAR(255) NOT NULL,
-                region VARCHAR(255) NOT NULL,
-                slug VARCHAR(255) NOT NULL,
-                value TEXT NOT NULL,
-                PRIMARY KEY (id),
-                UNIQUE KEY unique_data (category(50), indicator(50), region(50))
-            ) $charset_collate;";
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            category VARCHAR(255) NOT NULL,
+            subcategory VARCHAR(255) NULL,
+            indicator VARCHAR(255) NOT NULL,
+            region VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) NOT NULL,
+            value TEXT NOT NULL,
+            PRIMARY KEY (id)
+            -- Ранее был UNIQUE KEY unique_data (category(50), subcategory(50), indicator(50), region(50))
+            -- Если не нужен уникальный индекс, просто не указываем его.
+        ) $charset_collate;";
 
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
             dbDelta($sql);
-
-//            error_log("Table created: $table_name");
         }
     }
+
 
     private static function create_map_keys_table($table_name)
     {
@@ -77,6 +78,7 @@ class MSA_Tool_Activator
 //            error_log("Table created: $table_name");
         }
     }
+
     private static function create_directories()
     {
         // Получаем путь к папке uploads

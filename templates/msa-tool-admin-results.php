@@ -8,8 +8,8 @@ $table_name = $wpdb->get_blog_prefix() . 'msa_tool_data';
 $orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id'; // Поле для сортировки
 $order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'ASC'; // Направление сортировки
 
-// Разрешённые поля для сортировки
-$allowed_columns = ['id', 'category', 'indicator', 'region', 'slug', 'value'];
+// Разрешённые поля для сортировки — добавляем сюда 'subcategory'
+$allowed_columns = ['id', 'category', 'subcategory', 'indicator', 'region', 'slug', 'value'];
 if (!in_array($orderby, $allowed_columns)) {
     $orderby = 'id';
 }
@@ -43,6 +43,23 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
     <?php
     // Проверка наличия данных
     if (!empty($results)) {
+        $total_pages = ceil($total_items / $per_page);
+        if ($total_pages > 1) {
+            echo '<div class="tablenav bottom">';
+            echo '<div class="tablenav-pages">';
+
+            // Ссылки пагинации
+            for ($i = 1; $i <= $total_pages; $i++) {
+                $class = ($i == $paged) ? 'class="current"' : '';
+                $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
+                echo '<a ' . $class . ' href="' . $url . '">' . $i . '</a> ';
+            }
+
+            echo '</div>';
+            echo '</div>';
+        }
+
+
         echo '<table class="widefat fixed" style="margin-top: 20px;">';
         echo '<thead>';
         echo '<tr>';
@@ -56,6 +73,7 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
 
         echo '<th>' . sort_link('id', $orderby, $order, $current_page) . '</th>';
         echo '<th>' . sort_link('category', $orderby, $order, $current_page) . '</th>';
+        echo '<th>' . sort_link('subcategory', $orderby, $order, $current_page) . '</th>'; // Новая колонка
         echo '<th>' . sort_link('indicator', $orderby, $order, $current_page) . '</th>';
         echo '<th>' . sort_link('region', $orderby, $order, $current_page) . '</th>';
         echo '<th>' . sort_link('slug', $orderby, $order, $current_page) . '</th>';
@@ -70,9 +88,10 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
             $delete_url = wp_nonce_url(admin_url('admin.php?page=msa-tool-results&delete_id=' . $row['id']), 'msa_tool_delete_nonce_' . $row['id']);
 
             echo '<tr>';
-            echo '<td>' . esc_html($row['id']) . '<a href="' . esc_url($edit_url) . '" class="button button-secondary">Edit</a>
+            echo '<td>' . esc_html($row['id']) . ' <a href="' . esc_url($edit_url) . '" class="button button-secondary">Edit</a>
 <a href="' . esc_url($delete_url) . '" class="button button-secondary delete-link">Delete</a></td>';
             echo '<td>' . esc_html($row['category']) . '</td>';
+            echo '<td>' . esc_html($row['subcategory']) . '</td>'; // Выводим значение subcategory
             echo '<td>' . esc_html($row['indicator']) . '</td>';
             echo '<td>' . esc_html($row['region']) . '</td>';
             echo '<td>' . esc_html($row['slug']) . '</td>';
@@ -85,7 +104,7 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
         echo '</table>';
 
         // Пагинация
-        $total_pages = ceil($total_items / $per_page);
+//        $total_pages = ceil($total_items / $per_page);
 
         if ($total_pages > 1) {
             echo '<div class="tablenav bottom">';
@@ -106,7 +125,8 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
         echo '<h1>Imported Data</h1>';
         echo '<p>No data available in the database.</p>';
     }
-    ?></div>
+    ?>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deleteLinks = document.querySelectorAll('.wrap .delete-link');

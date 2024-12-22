@@ -66,7 +66,6 @@ jQuery(document).ready(function ($) {
     //add button
 
 
-
 });
 
 //remove rows
@@ -80,6 +79,15 @@ jQuery(document).ready(function ($) {
     // Показ скрытых строк
     $("#view-hidden-fields").on("click", function () {
         $(".hidden-row").removeClass("hidden-row");
+    });
+});
+
+//subcats
+jQuery(document).ready(function ($) {
+    $('.toggle-subcategories').on('click', function () {
+        const indicator = $(this).data('indicator');
+        // Найти все строки .msa-subcategory-row у которых data-parent-indicator=indicator
+        $(`.msa-subcategory-row[data-parent-indicator="${indicator}"]`).toggle();
     });
 });
 

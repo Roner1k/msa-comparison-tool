@@ -1,0 +1,4 @@
+.wrap .tablenav-pages .current {
+    color: #000;
+    text-decoration: unset;
+}

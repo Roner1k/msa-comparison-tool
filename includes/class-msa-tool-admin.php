@@ -9,7 +9,7 @@ class MSA_Tool_Admin
 
     }
 
-     public static function render_settings_page()
+    public static function render_settings_page()
     {
         // Обработка импорта файла
         if (isset($_POST['msa_tool_import_submit'])) {
@@ -89,7 +89,7 @@ class MSA_Tool_Admin
     {
         global $wpdb;
 
-        // Определяем, в какую таблицу редактируем
+        // Определяем, с какой таблицей работаем
         $is_map_row = isset($_GET['edit-map-row']);
         $table_name = $is_map_row
             ? $wpdb->get_blog_prefix() . 'msa_tool_map_keys'
@@ -102,7 +102,11 @@ class MSA_Tool_Admin
         }
 
         // Обработка сохранения изменений
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_save_changes']) && check_admin_referer('msa_tool_edit', 'msa_tool_edit_nonce')) {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST'
+            && isset($_POST['msa_tool_save_changes'])
+            && check_admin_referer('msa_tool_edit', 'msa_tool_edit_nonce')
+        ) {
             if ($is_map_row) {
                 // Обновление для таблицы map_keys
                 $data = [
@@ -110,13 +114,14 @@ class MSA_Tool_Admin
                     'map_id' => sanitize_text_field($_POST['map_id']),
                 ];
             } else {
-                // Обновление для таблицы tool_data
+                // Обновление для таблицы msa_tool_data с учетом subcategory
                 $data = [
-                    'region' => sanitize_text_field($_POST['region']),
-                    'slug' => sanitize_title($_POST['slug']),
-                    'category' => sanitize_text_field($_POST['category']),
-                    'indicator' => sanitize_text_field($_POST['indicator']),
-                    'value' => sanitize_text_field($_POST['value']),
+                    'region'     => sanitize_text_field($_POST['region']),
+                    'slug'       => sanitize_title($_POST['slug']),
+                    'category'   => sanitize_text_field($_POST['category']),
+                    'subcategory'=> isset($_POST['subcategory']) ? sanitize_text_field($_POST['subcategory']) : null,
+                    'indicator'  => sanitize_text_field($_POST['indicator']),
+                    'value'      => sanitize_text_field($_POST['value']),
                 ];
             }
 
@@ -143,7 +148,7 @@ class MSA_Tool_Admin
         // Отображаем уведомления
         settings_errors('msa_tool_messages');
 
-        // Подключаем шаблон
+        // Подключаем шаблон (в котором уже есть поле subcategory)
         include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-edit.php';
     }
 
@@ -170,6 +175,7 @@ class MSA_Tool_Admin
                     'region' => sanitize_text_field($_POST['region']),
                     'slug' => sanitize_title($_POST['slug']),
                     'category' => sanitize_text_field($_POST['category']),
+                    'subcategory' => sanitize_text_field($_POST['subcategory']),
                     'indicator' => sanitize_text_field($_POST['indicator']),
                     'value' => sanitize_text_field($_POST['value']),
                 ];

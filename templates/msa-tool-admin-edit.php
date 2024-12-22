@@ -19,7 +19,7 @@ $is_map_row = isset($_GET['edit-map-row']);
                 </tr>
             </table>
         <?php else: ?>
-            <!-- Поля для таблицы tool_data -->
+            <!-- Поля для таблицы tool_data с полем subcategory -->
             <table class="form-table">
                 <tr>
                     <th><label for="region">Region</label></th>
@@ -32,6 +32,11 @@ $is_map_row = isset($_GET['edit-map-row']);
                 <tr>
                     <th><label for="category">Category</label></th>
                     <td><input type="text" name="category" id="category" value="<?php echo esc_attr($entry['category']); ?>" required></td>
+                </tr>
+                <!-- Добавляем поле subcategory -->
+                <tr>
+                    <th><label for="subcategory">Subcategory</label></th>
+                    <td><input type="text" name="subcategory" id="subcategory" value="<?php echo esc_attr($entry['subcategory']); ?>"></td>
                 </tr>
                 <tr>
                     <th><label for="indicator">Indicator</label></th>

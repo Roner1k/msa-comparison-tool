@@ -1,38 +1,75 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_field']) && wp_verify_nonce($_POST['msa_tool_add_nonce_field'], 'msa_tool_add_nonce')) {
-    if (isset($_GET['new-map-row'])) {
-         $table_name = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
+    global $wpdb;
+
+    $is_map_row = isset($_GET['new-map-row']);
+
+    if ($is_map_row) {
+        // Добавление в msa_tool_map_keys (без изменений)
+        $table_name = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
         $data = [
             'region_slug' => sanitize_text_field($_POST['region_slug']),
-            'map_id' => sanitize_text_field($_POST['map_id']),
+            'map_id'      => sanitize_text_field($_POST['map_id']),
         ];
+
+        // Вставка данных
         $inserted = $wpdb->insert($table_name, $data, ['%s', '%s']);
+
+        if ($inserted) {
+            $redirect_page = 'msa-tool-region-mapping';
+            wp_redirect(admin_url('admin.php?page=' . $redirect_page));
+            exit;
+        } else {
+            self::show_notification('Error adding new mapping entry: ' . $wpdb->last_error, 'error');
+        }
+
     } else {
-        // Додавання в таблицю tool_data
+        // Добавление в msa_tool_data с учётом subcategory
         $table_name = $wpdb->get_blog_prefix() . 'msa_tool_data';
         $data = [
-            'region' => sanitize_text_field($_POST['region']),
-            'slug' => sanitize_text_field($_POST['slug']),
-            'category' => sanitize_text_field($_POST['category']),
-            'indicator' => sanitize_text_field($_POST['indicator']),
-            'value' => sanitize_text_field($_POST['value']),
+            'region'     => sanitize_text_field($_POST['region']),
+            'slug'       => sanitize_text_field($_POST['slug']),
+            'category'   => sanitize_text_field($_POST['category']),
+            'subcategory'=> isset($_POST['subcategory']) ? sanitize_text_field($_POST['subcategory']) : null,
+            'indicator'  => sanitize_text_field($_POST['indicator']),
+            'value'      => sanitize_text_field($_POST['value']),
         ];
-        $inserted = $wpdb->insert($table_name, $data, ['%s', '%s', '%s', '%s', '%s']);
-    }
 
-    if ($inserted) {
-        wp_redirect(admin_url('admin.php?page=msa-tool-region-mapping'));
-        exit;
+        // Проверяем уникальность по (category, subcategory, indicator, slug)
+        $exists = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $table_name WHERE category = %s AND subcategory = %s AND indicator = %s AND slug = %s",
+            $data['category'],
+            $data['subcategory'],
+            $data['indicator'],
+            $data['slug']
+        ));
+
+        if ($exists > 0) {
+            // Запись уже существует
+            self::show_notification('A record with these parameters already exists. Please choose different values.', 'error');
+        } else {
+            // Вставка данных, если нет дубликата
+            $inserted = $wpdb->insert($table_name, $data, ['%s', '%s', '%s', '%s', '%s', '%s']);
+            if ($inserted) {
+                $redirect_page = 'msa-tool-results';
+                wp_redirect(admin_url('admin.php?page=' . $redirect_page));
+                exit;
+            } else {
+                self::show_notification('Error adding new entry: ' . $wpdb->last_error, 'error');
+            }
+        }
     }
 }
 
-// Вивід HTML відбувається після обробки POST-запиту
+// Вивід HTML (форма) после обработки POST-запроса
 $is_map_row = isset($_GET['new-map-row']);
-
 ?>
 <div class="wrap">
     <h1><?php echo $is_map_row ? 'Add New Mapping Row' : 'Add New Data Row'; ?></h1>
-    <form method="post"><?php wp_nonce_field('msa_tool_add_nonce', 'msa_tool_add_nonce_field'); ?><?php if ($is_map_row): ?>
+    <form method="post">
+        <?php wp_nonce_field('msa_tool_add_nonce', 'msa_tool_add_nonce_field'); ?>
+        <?php if ($is_map_row): ?>
+            <!-- Форма для msa_tool_map_keys -->
             <table class="form-table">
                 <tr>
                     <th><label for="region_slug">Region Slug</label></th>
@@ -44,6 +81,7 @@ $is_map_row = isset($_GET['new-map-row']);
                 </tr>
             </table>
         <?php else: ?>
+            <!-- Форма для msa_tool_data с полем Subcategory -->
             <table class="form-table">
                 <tr>
                     <th><label for="region">Region</label></th>
@@ -56,6 +94,10 @@ $is_map_row = isset($_GET['new-map-row']);
                 <tr>
                     <th><label for="category">Category</label></th>
                     <td><input type="text" id="category" name="category" value="" required></td>
+                </tr>
+                <tr>
+                    <th><label for="subcategory">Subcategory</label></th>
+                    <td><input type="text" id="subcategory" name="subcategory" value=""></td>
                 </tr>
                 <tr>
                     <th><label for="indicator">Indicator</label></th>

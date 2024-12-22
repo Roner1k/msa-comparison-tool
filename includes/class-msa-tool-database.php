@@ -1,5 +1,168 @@
 <?php
 
+
+class MSA_Tool_Database
+{
+    public static function get_grouped_data()
+    {
+        global $wpdb;
+
+        // Определяем имена таблиц
+        $data_table = $wpdb->get_blog_prefix() . 'msa_tool_data';
+        $map_table = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
+
+        // Проверяем глобальный режим
+        $global_blog_id = get_site_option('msa_tool_global_data', 0);
+        if ($global_blog_id && $global_blog_id !== get_current_blog_id()) {
+            $data_table = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_data';
+            $map_table = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_map_keys';
+        }
+
+        // Проверяем существование таблиц
+        if (
+            $wpdb->get_var("SHOW TABLES LIKE '$data_table'") != $data_table
+            || $wpdb->get_var("SHOW TABLES LIKE '$map_table'") != $map_table
+        ) {
+            error_log("One or both tables ($data_table, $map_table) do not exist.");
+            return [];
+        }
+
+        // SQL-запрос для объединения данных из двух таблиц
+        // ДОБАВЛЯЕМ поле data.subcategory
+        $query = "
+        SELECT 
+            data.category,
+            data.subcategory,
+            data.indicator,
+            data.region,
+            data.slug,
+            data.value,
+            map.map_id
+        FROM 
+            $data_table AS data
+        LEFT JOIN 
+            $map_table AS map
+        ON 
+            data.slug = map.region_slug
+        ";
+
+        $all_data = $wpdb->get_results($query, ARRAY_A);
+
+        if (!$all_data) {
+            error_log("No data found in joined tables.");
+            return [];
+        }
+
+        // Формируем группированный массив
+        $grouped_data = [
+            'categories' => [],  // Список категорий (для чего-то наверху)
+            'regions' => [],  // Список регионов с их данными
+        ];
+
+        foreach ($all_data as $row) {
+            $category = $row['category'] ?? 'Unknown Category';
+            // Считали подкатегорию (может быть пустая строка или null)
+            $subcategory = $row['subcategory'] ?? '';
+            $indicator = $row['indicator'] ?? 'Unknown Indicator';
+            $region = $row['region'] ?? 'Unknown Region';
+            $slug = $row['slug'] ?? sanitize_title($region);
+            $value = $row['value'] ?? 0;
+            $map_id = $row['map_id'] ?? null;
+
+            // --- Группируем по категориям (верхний уровень) ---
+            if (!isset($grouped_data['categories'][$category])) {
+                $grouped_data['categories'][$category] = [];
+            }
+            // Если в массиве категорий нет ещё такого индикатора, добавим
+            if (!in_array($indicator, $grouped_data['categories'][$category])) {
+                $grouped_data['categories'][$category][] = $indicator;
+            }
+
+            // --- Группируем по регионам ---
+            if (!isset($grouped_data['regions'][$region])) {
+                $grouped_data['regions'][$region] = [
+                    'slug' => $slug,
+                    'map_id' => $map_id,
+                    'categories' => [],
+                ];
+            }
+
+            // Если в данном регионе ещё нет этой категории, инициализируем
+            if (!isset($grouped_data['regions'][$region]['categories'][$category])) {
+                $grouped_data['regions'][$region]['categories'][$category] = [];
+            }
+
+            // --- Обработка Rank ---
+            if (strpos($indicator, 'Rank') !== false) {
+                // Для старых данных "Indicator Rank" мы чистим " Rank" и записываем rank
+                $clean_indicator = str_replace(' Rank', '', $indicator);
+                $grouped_data['regions'][$region]['categories'][$category][$clean_indicator]['rank'] = $value;
+            } else {
+                // Если НЕ Rank — обрабатываем обычное значение
+                // Старая логика: indicator => [ 'value' => ... ]
+
+                // 1) Убедимся, что есть "слот" для этого индикатора
+                if (!isset($grouped_data['regions'][$region]['categories'][$category][$indicator])) {
+                    // Добавим структуру так, чтобы в будущем могли хранить subcategories
+                    $grouped_data['regions'][$region]['categories'][$category][$indicator] = [
+                        'value' => null,    // Значение самого индикатора
+                        'subcategories' => [],      // Массив подкатегорий, если появятся
+                    ];
+                }
+
+                // 2) Если subcategory пустая, значит это "обычное" значение индикатора
+                if (empty($subcategory)) {
+                    // Старый сценарий: просто indicator => value
+                    $grouped_data['regions'][$region]['categories'][$category][$indicator]['value'] = $value;
+                } else {
+                    // 3) Иначе это подкатегория
+                    $grouped_data['regions'][$region]['categories'][$category][$indicator]['subcategories'][$subcategory] = $value;
+                }
+            }
+        }
+
+        return $grouped_data;
+    }
+
+    public static function get_map_data()
+    {
+        global $wpdb;
+
+        $map_table = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
+
+        // Проверяем глобальный режим
+        if (is_multisite()) {
+            $global_blog_id = get_site_option('msa_tool_global_data', 0);
+
+            if ($global_blog_id && $global_blog_id !== get_current_blog_id()) {
+                $map_table = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_map_keys';
+
+                if ($wpdb->get_var("SHOW TABLES LIKE '$map_table'") != $map_table) {
+                    error_log("Global table $map_table does not exist.");
+                    return [];
+                }
+            }
+        }
+
+        // Проверяем существование таблицы
+        if ($wpdb->get_var("SHOW TABLES LIKE '$map_table'") != $map_table) {
+            error_log("Table $map_table does not exist.");
+            return [];
+        }
+
+        // Получаем данные из таблицы map_keys
+        $results = $wpdb->get_results("SELECT region_slug, map_id FROM $map_table", ARRAY_A);
+
+        if (!$results) {
+            error_log("No data found in $map_table.");
+        }
+
+        return $results;
+    }
+
+}
+
+/*
 class MSA_Tool_Database
 {
 
@@ -147,3 +310,4 @@ class MSA_Tool_Database
 
 
 }
+*/
