@@ -1,5 +1,30 @@
 #msa-tool-container {
     margin: 20px 0;
+    display: flex;
+    flex-flow: row wrap;
+    column-gap: 5%;
+}
+
+#msa-tool-container #msa-tool-map {
+    width: 65%;
+}
+
+#msa-tool-container #msa-tool-content {
+    width: 100%;
+}
+
+.msa-rank-toggle {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.msa-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .msa-category {
@@ -47,7 +72,7 @@
 #msa-tool-location-selector {
     margin: 20px 0;
     position: relative;
-    width: 100%;
+    width: 30%;
 }
 
 .msa-custom-select {
@@ -75,7 +100,73 @@
 }
 
 .msa-selected-items .msa-placeholder {
-    color: #999;
+    background: none;
+    border: none;
+    font-weight: 600;
+    color: #7c7c7c;
+
+}
+
+#msa-tool-map .esri-component.esri-attribution.esri-widget {
+    display: none;
+}
+
+#msa-tool-content .msa-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 8px;
+}
+
+#msa-tool-content .msa-checkbox label {
+    width: auto;
+}
+
+#msa-tool-content .msa-checkbox input[type="checkbox"] {
+    /* Скрываем стандартный чекбокс */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+#msa-tool-content .msa-checkbox span::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 4px; /* Сделать квадрат или круг */
+    background-color: #fff;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#msa-tool-content .msa-checkbox input[type="checkbox"]:checked + span::before {
+    border-color: #007bff;
+    background-color: #007bff;
+}
+
+#msa-tool-content .msa-checkbox span {
+    user-select: none; /* Отключение выделения текста */
+    color: #333;
+    line-height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+
+#msa-tool-map .esri-component.esri-zoom.esri-widget {
+    row-gap: .7rem;
+    background: none;
+    border: none;
+    box-shadow: unset;
 }
 
 .msa-options {
@@ -109,6 +200,7 @@
     color: #666;
     pointer-events: none;
 }
+
 .msa-option.selected {
     background-color: #0073aa;
     color: #fff;
@@ -130,14 +222,16 @@
     visibility: hidden;
     opacity: 0;
 }
+
 #msa-toggle-all {
-    margin: 10px 0;
-    padding: 5px 10px;
-    background-color: #0073aa;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
+    margin-bottom: 1rem;
+    /*margin: 10px 0;*/
+    /*padding: 5px 10px;*/
+    /*background-color: #0073aa;*/
+    /*color: #fff;*/
+    /*border: none;*/
+    /*border-radius: 3px;*/
+    /*cursor: pointer;*/
 }
 
 #msa-toggle-all:hover {
@@ -148,6 +242,7 @@
     display: flex;
     flex-wrap: wrap;
     position: relative; /* Для абсолютного позиционирования кнопки */
+    padding-right: 150px;
 }
 
 .msa-add-location {
@@ -173,9 +268,11 @@
     color: #fff;
     pointer-events: auto; /* Возвращаем клики на ховере */
 }
+
 .msa-add-location.hidden {
     display: none;
 }
+
 .hide-row-btn {
     background-color: transparent;
     border: none;
@@ -183,9 +280,11 @@
     font-size: 16px;
     cursor: pointer;
 }
+
 .hide-row-btn:hover {
     color: darkred;
 }
+
 .hidden-row {
     display: none;
 }

@@ -93,6 +93,7 @@ jQuery(document).ready(function ($) {
 
 
 // export pdf
+/*
 jQuery(document).ready(function ($) {
     $('#export-pdf').on('click', function () {
         const categories = [];
@@ -188,3 +189,112 @@ jQuery(document).ready(function ($) {
         });
     });
 });
+*/
+// export pdf
+// export pdf
+// export pdf
+jQuery(document).ready(function ($) {
+
+    // Функция, которая раскрывает все категории и подкатегории
+    function revealAllForPdf() {
+        // Насильно раскрыть все аккордеоны категорий
+        $(".msa-category-content").slideDown(0);  // мгновенно, без анимации
+        allExpanded = true;                       // чтобы кнопка "Toggle All" понимала текущее состояние
+        $("#msa-toggle-all").text("Collapse All");
+
+        // Раскрыть все подкатегории
+        $(".msa-subcategory-row").show();
+
+        // Если хотите раскрыть скрытые строки (hidden-row), раскомментируйте:
+        // $(".hidden-row").removeClass("hidden-row");
+    }
+
+    $('#export-pdf').on('click', function () {
+        revealAllForPdf();
+
+        const categories = [];
+
+        // Собираем данные как раньше...
+        $('.msa-category').each(function () {
+            const $category = $(this);
+            const categoryName = $category.find('.msa-category-header h3').text().trim();
+            const includeInDownload = $category.find('.msa-category-checkbox').is(':checked');
+
+            if (!includeInDownload) return;
+
+            const $table = $category.find('table.msa-table');
+            if ($table.length === 0) return;
+
+            const headers = [];
+            $table.find('thead tr').each(function () {
+                const $headerRow = $(this);
+                if ($headerRow.is(':hidden')) return;
+
+                const headerRowData = [];
+                $headerRow.find('th:visible').each(function () {
+                    const $cell = $(this);
+                    if ($cell.hasClass('msa-rank-column') && $cell.hasClass('hidden')) return;
+                    if ($cell.hasClass('hide-row-col')) return;
+                    headerRowData.push($cell.text().trim());
+                });
+
+                if (headerRowData.length > 0) {
+                    headers.push(headerRowData);
+                }
+            });
+
+            const tableData = [];
+            $table.find('tbody tr').each(function () {
+                const $row = $(this);
+                if ($row.is(':hidden')) return;
+
+                const rowData = [];
+                $row.find('td:visible').each(function () {
+                    const $cell = $(this);
+                    if ($cell.hasClass('msa-rank-column') && $cell.hasClass('hidden')) return;
+                    if ($cell.hasClass('hide-row-col')) return;
+                    rowData.push($cell.text().trim());
+                });
+
+                if (rowData.length > 0) {
+                    tableData.push(rowData);
+                }
+            });
+
+            if (headers.length === 0 && tableData.length === 0) return;
+
+            categories.push({
+                name: categoryName,
+                headers: headers,
+                rows: tableData,
+            });
+        });
+
+        if (categories.length === 0) {
+            alert('No categories selected for download.');
+            return;
+        }
+
+        $.ajax({
+            url: msaToolData.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'export_pdf',
+                categories: JSON.stringify(categories),
+            },
+            success: function (response) {
+                if (response.success && response.data.file) {
+                    // Открыть в новой вкладке
+                    window.open(response.data.file, '_blank');
+                } else {
+                    console.error('Error:', response.data.message || 'Unknown error');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', status, error);
+            },
+        });
+    });
+
+});
+

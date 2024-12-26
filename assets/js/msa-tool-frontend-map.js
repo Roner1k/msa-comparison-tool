@@ -274,8 +274,8 @@ jQuery(document).ready(function ($) {
         const view = new MapView({
             container: "viewDiv",
             map: webMap,
-            zoom: 5,
-            center: [-95, 37]
+            zoom: 6,
+            center: [-86, 30]
         });
 
         const featureLayer = new FeatureLayer({
