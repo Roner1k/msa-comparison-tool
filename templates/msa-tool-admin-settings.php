@@ -33,6 +33,24 @@
                     </td>
                 </tr>
             <?php endif; ?>
+            <tr>
+                <th scope="row">
+                    <label for="msa_tool_export_info">Export File Additional Info:</label>
+                </th>
+                <td>
+                    <?php
+                    $content = get_option('msa_tool_export_info', '');
+                    wp_editor($content, 'msa_tool_export_info', [
+                        'textarea_name' => 'msa_tool_export_info',
+                        'textarea_rows' => 5,
+                        'media_buttons' => false,
+                        'teeny' => true,
+                    ]);
+                    ?>
+                    <p class="description">Enter additional information to display at the end of the exported PDF file. You can include headers and paragraphs.</p>
+                </td>
+            </tr>
+
         </table>
 
         <p class="submit">

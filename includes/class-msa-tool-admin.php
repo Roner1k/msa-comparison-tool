@@ -9,6 +9,44 @@ class MSA_Tool_Admin
 
     }
 
+    /*
+        public static function render_settings_page()
+        {
+            // Обработка импорта файла
+            if (isset($_POST['msa_tool_import_submit'])) {
+                MSA_Tool_Import::handle_file_import();
+            }
+
+            // Обработка общей формы настроек (ArcGIS и Global Mode)
+            if (isset($_POST['msa_tool_settings_submit']) && check_admin_referer('msa_tool_settings', 'msa_tool_settings_nonce')) {
+                // Обработка опции ArcGIS
+                $disable_arcgis = isset($_POST['msa_tool_disable_arcgis']) ? 1 : 0;
+                update_option('msa_tool_disable_arcgis', $disable_arcgis);
+
+                // Обработка опции Global Data Mode, только если мультисайт
+                if (is_multisite()) {
+                    $global_data = isset($_POST['msa_tool_global_data']) ? (int)get_current_blog_id() : null;
+
+                    if ($global_data) {
+                        update_site_option('msa_tool_global_data', $global_data);
+                    } else {
+                        delete_site_option('msa_tool_global_data');
+                    }
+                }
+
+                // Добавляем сообщение об успешном сохранении настроек
+                add_settings_error('msa_tool_messages', 'msa_tool_success', 'Settings updated successfully.', 'success');
+            }
+
+            // Проверяем, активен ли глобальный режим
+            if (self::render_global_mode_message()) {
+                return;
+            }
+
+            // Подключаем шаблон страницы настроек
+            include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-settings.php';
+        }
+        */
     public static function render_settings_page()
     {
         // Обработка импорта файла
@@ -16,7 +54,7 @@ class MSA_Tool_Admin
             MSA_Tool_Import::handle_file_import();
         }
 
-        // Обработка общей формы настроек (ArcGIS и Global Mode)
+        // Обработка общей формы настроек (ArcGIS, Global Mode и новое поле)
         if (isset($_POST['msa_tool_settings_submit']) && check_admin_referer('msa_tool_settings', 'msa_tool_settings_nonce')) {
             // Обработка опции ArcGIS
             $disable_arcgis = isset($_POST['msa_tool_disable_arcgis']) ? 1 : 0;
@@ -31,6 +69,11 @@ class MSA_Tool_Admin
                 } else {
                     delete_site_option('msa_tool_global_data');
                 }
+            }
+
+            // Сохранение текстового поля для экспорта
+            if (isset($_POST['msa_tool_export_info'])) {
+                update_option('msa_tool_export_info', wp_kses_post($_POST['msa_tool_export_info']));
             }
 
             // Добавляем сообщение об успешном сохранении настроек
@@ -116,12 +159,12 @@ class MSA_Tool_Admin
             } else {
                 // Обновление для таблицы msa_tool_data с учетом subcategory
                 $data = [
-                    'region'     => sanitize_text_field($_POST['region']),
-                    'slug'       => sanitize_title($_POST['slug']),
-                    'category'   => sanitize_text_field($_POST['category']),
-                    'subcategory'=> isset($_POST['subcategory']) ? sanitize_text_field($_POST['subcategory']) : null,
-                    'indicator'  => sanitize_text_field($_POST['indicator']),
-                    'value'      => sanitize_text_field($_POST['value']),
+                    'region' => sanitize_text_field($_POST['region']),
+                    'slug' => sanitize_title($_POST['slug']),
+                    'category' => sanitize_text_field($_POST['category']),
+                    'subcategory' => isset($_POST['subcategory']) ? sanitize_text_field($_POST['subcategory']) : null,
+                    'indicator' => sanitize_text_field($_POST['indicator']),
+                    'value' => sanitize_text_field($_POST['value']),
                 ];
             }
 

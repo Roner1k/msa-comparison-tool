@@ -44,7 +44,11 @@
             <div class="msa-controls">
                 <div class="msa-control-downloads">
                     <h4>Download Report</h4>
-                    <button id="export-pdf">Export to PDF</button>
+                    <div class="msa-buttons">
+                        <button id="export-pdf">Export to PDF</button>
+                        <button id="export-xlsx">Export to XLSX</button>
+
+                    </div>
                 </div>
                 <!-- Toggle All Button -->
                 <div class="msa-control-btns">
