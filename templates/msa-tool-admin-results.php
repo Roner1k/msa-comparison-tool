@@ -1,28 +1,28 @@
 <?php
 global $wpdb;
 
-// Имя таблицы
+// Table name
 $table_name = $wpdb->get_blog_prefix() . 'msa_tool_data';
 
-// Установка параметров сортировки
-$orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id'; // Поле для сортировки
-$order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'ASC'; // Направление сортировки
+// Set sorting parameters
+$orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id'; // Column for sorting
+$order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'ASC'; // Sorting direction
 
-// Разрешённые поля для сортировки — добавляем сюда 'subcategory'
+// Allowed columns for sorting, including 'subcategory'
 $allowed_columns = ['id', 'category', 'subcategory', 'indicator', 'region', 'slug', 'value'];
 if (!in_array($orderby, $allowed_columns)) {
     $orderby = 'id';
 }
 
-// Получение текущей страницы
-$paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1; // Текущая страница
-$per_page = 100; // Количество записей на странице
-$offset = ($paged - 1) * $per_page; // Смещение
+// Get the current page
+$paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1; // Current page
+$per_page = 100; // Records per page
+$offset = ($paged - 1) * $per_page; // Offset
 
-// Получение общего числа записей
+// Get total number of records
 $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
 
-// Извлечение данных с сортировкой и пагинацией
+// Retrieve data with sorting and pagination
 $results = $wpdb->get_results(
     $wpdb->prepare(
         "SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
@@ -32,101 +32,82 @@ $results = $wpdb->get_results(
     ARRAY_A
 );
 
-// Получение текущего параметра страницы
+// Get the current page parameter
 $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa-tool-results';
 ?>
+
 <div class="wrap">
     <h1>Imported Data</h1>
-    <h2>New record</h2>
+    <h2>New Record</h2>
     <a href="<?php echo admin_url('admin.php?page=msa-tool-add'); ?>" class="button button-primary">Add Row</a>
 
-    <?php
-    // Проверка наличия данных
-    if (!empty($results)) {
+    <?php if (!empty($results)): ?>
+        <table class="widefat fixed" style="margin-top: 20px;">
+            <thead>
+            <tr>
+                <?php
+                // Function to create sorting links
+                function sort_link($column, $current_orderby, $current_order, $current_page)
+                {
+                    $next_order = ($current_orderby === $column && $current_order === 'ASC') ? 'DESC' : 'ASC';
+                    return '<a href="' . esc_url(add_query_arg(['orderby' => $column, 'order' => $next_order], admin_url('admin.php?page=' . $current_page))) . '">' . ucfirst($column) . '</a>';
+                }
+
+                echo '<th>' . sort_link('id', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('category', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('subcategory', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('indicator', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('region', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('slug', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('value', $orderby, $order, $current_page) . '</th>';
+                ?>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($results as $row): ?>
+                <?php
+                $edit_url = admin_url('admin.php?page=msa-tool-edit&id=' . $row['id']);
+                $delete_url = wp_nonce_url(admin_url('admin.php?page=msa-tool-results&delete_id=' . $row['id']), 'msa_tool_delete_nonce_' . $row['id']);
+                ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html($row['id']); ?>
+                        <a href="<?php echo esc_url($edit_url); ?>" class="button button-secondary">Edit</a>
+                        <a href="<?php echo esc_url($delete_url); ?>" class="button button-secondary delete-link">Delete</a>
+                    </td>
+                    <td><?php echo esc_html($row['category']); ?></td>
+                    <td><?php echo esc_html($row['subcategory']); ?></td>
+                    <td><?php echo esc_html($row['indicator']); ?></td>
+                    <td><?php echo esc_html($row['region']); ?></td>
+                    <td><?php echo esc_html($row['slug']); ?></td>
+                    <td><?php echo esc_html($row['value']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <?php
+        // Pagination
         $total_pages = ceil($total_items / $per_page);
-        if ($total_pages > 1) {
-            echo '<div class="tablenav bottom">';
-            echo '<div class="tablenav-pages">';
 
-            // Ссылки пагинации
-            for ($i = 1; $i <= $total_pages; $i++) {
-                $class = ($i == $paged) ? 'class="current"' : '';
-                $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
-                echo '<a ' . $class . ' href="' . $url . '">' . $i . '</a> ';
-            }
-
-            echo '</div>';
-            echo '</div>';
-        }
-
-
-        echo '<table class="widefat fixed" style="margin-top: 20px;">';
-        echo '<thead>';
-        echo '<tr>';
-
-        // Функция для добавления ссылки на сортировку
-        function sort_link($column, $current_orderby, $current_order, $current_page)
-        {
-            $next_order = ($current_orderby === $column && $current_order === 'ASC') ? 'DESC' : 'ASC';
-            return '<a href="' . esc_url(add_query_arg(['orderby' => $column, 'order' => $next_order], admin_url('admin.php?page=' . $current_page))) . '">' . ucfirst($column) . '</a>';
-        }
-
-        echo '<th>' . sort_link('id', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('category', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('subcategory', $orderby, $order, $current_page) . '</th>'; // Новая колонка
-        echo '<th>' . sort_link('indicator', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('region', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('slug', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('value', $orderby, $order, $current_page) . '</th>';
-        echo '</tr>';
-        echo '</thead>';
-        echo '<tbody>';
-
-        // Вывод данных
-        foreach ($results as $row) {
-            $edit_url = admin_url('admin.php?page=msa-tool-edit&id=' . $row['id']);
-            $delete_url = wp_nonce_url(admin_url('admin.php?page=msa-tool-results&delete_id=' . $row['id']), 'msa_tool_delete_nonce_' . $row['id']);
-
-            echo '<tr>';
-            echo '<td>' . esc_html($row['id']) . ' <a href="' . esc_url($edit_url) . '" class="button button-secondary">Edit</a>
-<a href="' . esc_url($delete_url) . '" class="button button-secondary delete-link">Delete</a></td>';
-            echo '<td>' . esc_html($row['category']) . '</td>';
-            echo '<td>' . esc_html($row['subcategory']) . '</td>'; // Выводим значение subcategory
-            echo '<td>' . esc_html($row['indicator']) . '</td>';
-            echo '<td>' . esc_html($row['region']) . '</td>';
-            echo '<td>' . esc_html($row['slug']) . '</td>';
-            echo '<td>' . esc_html($row['value']) . '</td>';
-
-            echo '</tr>';
-        }
-
-        echo '</tbody>';
-        echo '</table>';
-
-        // Пагинация
-//        $total_pages = ceil($total_items / $per_page);
-
-        if ($total_pages > 1) {
-            echo '<div class="tablenav bottom">';
-            echo '<div class="tablenav-pages">';
-
-            // Ссылки пагинации
-            for ($i = 1; $i <= $total_pages; $i++) {
-                $class = ($i == $paged) ? 'class="current"' : '';
-                $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
-                echo '<a ' . $class . ' href="' . $url . '">' . $i . '</a> ';
-            }
-
-            echo '</div>';
-            echo '</div>';
-        }
-    } else {
-        // Если данных нет
-        echo '<h1>Imported Data</h1>';
-        echo '<p>No data available in the database.</p>';
-    }
-    ?>
+        if ($total_pages > 1): ?>
+            <div class="tablenav bottom">
+                <div class="tablenav-pages">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <?php
+                        $class = ($i == $paged) ? 'class="current"' : '';
+                        $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
+                        ?>
+                        <a <?php echo $class; ?> href="<?php echo $url; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php else: ?>
+        <p>No data available in the database.</p>
+    <?php endif; ?>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deleteLinks = document.querySelectorAll('.wrap .delete-link');

@@ -169,8 +169,7 @@
 }
 
 #msa-tool-content .msa-checkbox input[type="checkbox"] {
-    /* Скрываем стандартный чекбокс */
-    appearance: none;
+     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     position: absolute;
@@ -186,7 +185,7 @@
     width: 20px;
     height: 20px;
     border: 2px solid #ccc;
-    border-radius: 4px; /* Сделать квадрат или круг */
+    border-radius: 4px;
     background-color: #fff;
     margin-right: 8px;
     transition: all 0.3s ease;
@@ -199,7 +198,7 @@
 }
 
 #msa-tool-content .msa-checkbox span {
-    user-select: none; /* Отключение выделения текста */
+    user-select: none;
     color: #333;
     line-height: 20px;
     cursor: pointer;
@@ -253,23 +252,18 @@
     font-weight: bold;
 }
 
-/* Отключаем все элементы попапов на карте */
-#msa-tool-container .esri-component.esri-popup {
+ #msa-tool-container .esri-component.esri-popup {
     display: none !important;
 }
 
 .msa-table .msa-rank-column {
-    /*visibility: visible;*/
-    /*display: inherit !important;*/
-    /*opacity: 1;*/
-    /*transition: opacity 0.3s ease; !* Плавное появление/скрытие *!*/
+
 }
 
 .msa-table .msa-rank-column.hidden {
     visibility: hidden;
     display: none !important;
-    /*opacity: 0;*/
-}
+ }
 
 .msa-table .hide-row-col {
     position: absolute;
@@ -308,7 +302,7 @@
 .msa-selected-items {
     display: flex;
     flex-wrap: wrap;
-    position: relative; /* Для абсолютного позиционирования кнопки */
+    position: relative;
     padding-right: 150px;
 }
 
@@ -322,18 +316,18 @@
     cursor: pointer;
     margin: 3px;
     transition: background-color 0.3s, color 0.3s;
-    pointer-events: none; /* Пропускаем клики */
+    pointer-events: none;
     position: absolute;
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 1; /* Чтобы не перекрывать текст */
+    z-index: 1;
 }
 
 .msa-add-location:hover {
     background-color: #0073aa;
     color: #fff;
-    pointer-events: auto; /* Возвращаем клики на ховере */
+    pointer-events: auto;
 }
 
 .msa-add-location.hidden {

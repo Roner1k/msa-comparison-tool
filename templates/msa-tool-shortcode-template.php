@@ -29,43 +29,41 @@
                     <?php endforeach; ?>
                 </ul>
             </div>
-
-
         </div>
+
         <!-- Table Section -->
         <div id="msa-tool-content">
             <!-- Include Rank Checkbox -->
             <div class="msa-rank-toggle">
-                <label class="msa-checkbox"> <input type="checkbox"
-                                                    id="msa-include-rank"><span>Include Rank</span></label>
+                <label class="msa-checkbox">
+                    <input type="checkbox" id="msa-include-rank">
+                    <span>Include Rank</span>
+                </label>
             </div>
 
-
             <div class="msa-controls">
+                <!-- Download Buttons -->
                 <div class="msa-control-downloads">
                     <h4>Download Report</h4>
                     <div class="msa-buttons">
                         <button id="export-pdf">Export to PDF</button>
                         <button id="export-xlsx">Export to XLSX</button>
-
                     </div>
                 </div>
+
                 <!-- Toggle All Button -->
                 <div class="msa-control-btns">
-
                     <div class="msa-toggle-all-container">
                         <button id="msa-toggle-all">Toggle All</button>
                     </div>
                     <div>
                         <a id="msa-view-hidden-fields">View Hidden Fields</a>
                     </div>
-
                 </div>
             </div>
 
-
             <?php
-            // Сортируем регионы (пример, как у вас сделано)
+            // Sort regions, prioritizing "Orlando, FL"
             uksort($data['regions'], function ($regionA, $regionB) {
                 if ($regionA === 'Orlando, FL') return -1;
                 if ($regionB === 'Orlando, FL') return 1;
@@ -78,15 +76,14 @@
                     <!-- Category Header -->
                     <div class="msa-category-header">
                         <h3><?php echo esc_html($category); ?></h3>
-                        <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">
-                            Toggle
-                        </button>
+                        <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">Toggle</button>
                     </div>
                     <div class="msa-category-header">
                         <label class="msa-checkbox">
                             <input type="checkbox" class="msa-category-checkbox"
-                                   data-category="<?php echo esc_attr($category); ?>"
-                                   checked><span>Include in Download</span> </label>
+                                   data-category="<?php echo esc_attr($category); ?>" checked>
+                            <span>Include in Download</span>
+                        </label>
                     </div>
 
                     <!-- Category Content -->
@@ -94,7 +91,7 @@
                         <table class="msa-table">
                             <thead>
                             <tr>
-                                <th><!--Indicator--></th>
+                                <th></th>
                                 <?php foreach ($data['regions'] as $region_name => $region_data): ?>
                                     <th class="msa-region-column"
                                         data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
@@ -105,41 +102,26 @@
                                         Rank
                                     </th>
                                 <?php endforeach; ?>
-                                <th class="hide-row-col"><!--Hide Row--></th>
+                                <th class="hide-row-col"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php $rowIndex = 0; ?>
-                            <?php foreach ($indicators as $indicator):
-                                // Пропускаем, если это 'Rank' — у вас уже логика выше
-                                if (strpos($indicator, 'Rank') !== false) {
-                                    continue;
-                                }
-                                // Для каждого региона мы можем проверить subcategories
-                                // Но удобнее один раз получить "есть ли subcategories"
-                                // из первого региона или из $data['regions'][...]
-                                // Мы пойдем через $data['regions'][$regionName]['categories'][$category][$indicator]
-                                // Условимся, что структура одинаковая.
+                            <?php foreach ($indicators as $indicator): ?>
+                                <?php if (strpos($indicator, 'Rank') !== false) continue; ?>
 
-                                // Возьмём "subcategories" из первого региона, если нужно,
-                                // но корректнее пройтись по всем. Пример (ниже) возьмём первый:
+                                <?php
+                                // Check if the indicator has subcategories
                                 $firstRegionName = array_key_first($data['regions']);
                                 $indicatorData = $data['regions'][$firstRegionName]['categories'][$category][$indicator] ?? null;
-                                $hasSubcategories = false;
-                                if (isset($indicatorData['subcategories']) && !empty($indicatorData['subcategories'])) {
-                                    $hasSubcategories = true;
-                                }
+                                $hasSubcategories = isset($indicatorData['subcategories']) && !empty($indicatorData['subcategories']);
                                 ?>
-                                <!-- Основная строка индикатора -->
+                                <!-- Main Indicator Row -->
                                 <tr class="table-row"
                                     data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>"
                                     data-has-subcategories="<?php echo $hasSubcategories ? 'true' : 'false'; ?>">
-                                    <td>
+                                    <td><?php echo esc_html($indicator); ?></td>
 
-                                        <?php echo esc_html($indicator); ?>
-                                    </td>
-
-                                    <!-- Выводим ячейки для регионов -->
                                     <?php foreach ($data['regions'] as $region_name => $region_data): ?>
                                         <?php
                                         $val = $region_data['categories'][$category][$indicator]['value'] ?? '-';
@@ -163,37 +145,26 @@
                                     </td>
                                 </tr>
 
-                                <?php
-                                // Если у индикатора есть подкатегории, выводим отдельные строки
-                                if ($hasSubcategories):
-                                    // Теперь, чтобы корректно вывести значения подкатегорий
-                                    // нам нужно пройтись по списку subcategories, но у всех регионов.
-                                    // Один из подходов:
-                                    // 1) Собираем полный список subcat'ов из всех регионов (union).
+                                <?php if ($hasSubcategories): ?>
+                                    <?php
+                                    // Collect all subcategories across regions
                                     $allSubcats = [];
                                     foreach ($data['regions'] as $rgName => $rgData) {
                                         $sc = $rgData['categories'][$category][$indicator]['subcategories'] ?? [];
                                         $allSubcats = array_merge($allSubcats, array_keys($sc));
                                     }
                                     $allSubcats = array_unique($allSubcats);
+                                    ?>
 
-                                    // 2) Для каждого subcat делаем новую строку
-                                    foreach ($allSubcats as $subcatName):
-                                        $subRowIndex = $rowIndex . '-sc-' . sanitize_title($subcatName);
-                                        ?>
+                                    <?php foreach ($allSubcats as $subcatName): ?>
+                                        <?php $subRowIndex = $rowIndex . '-sc-' . sanitize_title($subcatName); ?>
                                         <tr class="table-row msa-subcategory-row"
                                             data-parent-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>"
                                             style="display: none;">
-                                            <!-- Первый столбец: Название subcategory -->
-                                            <td>
-                                                — <?php echo esc_html($subcatName); ?>
-                                            </td>
-
-                                            <!-- Далее: ячейки по регионам -->
+                                            <td>— <?php echo esc_html($subcatName); ?></td>
                                             <?php foreach ($data['regions'] as $rgName => $rgData): ?>
                                                 <?php
                                                 $subValue = $rgData['categories'][$category][$indicator]['subcategories'][$subcatName] ?? '-';
-                                                $subRank = '-'; // Если у подкатегорий тоже бывают rank, можно аналогично хранить
                                                 ?>
                                                 <td class="msa-region-column"
                                                     data-region-slug="<?php echo esc_attr($rgData['slug']); ?>">
@@ -201,7 +172,7 @@
                                                 </td>
                                                 <td class="msa-region-column msa-rank-column hidden"
                                                     data-region-slug="<?php echo esc_attr($rgData['slug']); ?>">
-                                                    <?php echo esc_html($subRank); ?>
+                                                    -
                                                 </td>
                                             <?php endforeach; ?>
                                             <td class="hide-row-col">
@@ -213,7 +184,6 @@
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-
                                 <?php $rowIndex++; ?>
                             <?php endforeach; ?>
                             </tbody>
@@ -221,7 +191,6 @@
                     </div>
                 </div>
             <?php endforeach; ?>
-
         </div>
     </div>
 <?php else: ?>

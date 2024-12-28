@@ -5,14 +5,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_fi
     $is_map_row = isset($_GET['new-map-row']);
 
     if ($is_map_row) {
-        // Добавление в msa_tool_map_keys (без изменений)
+        // Adding to msa_tool_map_keys
         $table_name = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
         $data = [
             'region_slug' => sanitize_text_field($_POST['region_slug']),
             'map_id'      => sanitize_text_field($_POST['map_id']),
         ];
 
-        // Вставка данных
+        // Insert data
         $inserted = $wpdb->insert($table_name, $data, ['%s', '%s']);
 
         if ($inserted) {
@@ -22,9 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_fi
         } else {
             self::show_notification('Error adding new mapping entry: ' . $wpdb->last_error, 'error');
         }
-
     } else {
-        // Добавление в msa_tool_data с учётом subcategory
+        // Adding to msa_tool_data with subcategory
         $table_name = $wpdb->get_blog_prefix() . 'msa_tool_data';
         $data = [
             'region'     => sanitize_text_field($_POST['region']),
@@ -35,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_fi
             'value'      => sanitize_text_field($_POST['value']),
         ];
 
-        // Проверяем уникальность по (category, subcategory, indicator, slug)
+        // Check uniqueness based on (category, subcategory, indicator, slug)
         $exists = $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $table_name WHERE category = %s AND subcategory = %s AND indicator = %s AND slug = %s",
             $data['category'],
@@ -45,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_fi
         ));
 
         if ($exists > 0) {
-            // Запись уже существует
+            // Record already exists
             self::show_notification('A record with these parameters already exists. Please choose different values.', 'error');
         } else {
-            // Вставка данных, если нет дубликата
+            // Insert data if no duplicate exists
             $inserted = $wpdb->insert($table_name, $data, ['%s', '%s', '%s', '%s', '%s', '%s']);
             if ($inserted) {
                 $redirect_page = 'msa-tool-results';
@@ -61,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['msa_tool_add_nonce_fi
     }
 }
 
-// Вивід HTML (форма) после обработки POST-запроса
+// Render HTML form after processing POST request
 $is_map_row = isset($_GET['new-map-row']);
 ?>
 <div class="wrap">
@@ -69,7 +68,7 @@ $is_map_row = isset($_GET['new-map-row']);
     <form method="post">
         <?php wp_nonce_field('msa_tool_add_nonce', 'msa_tool_add_nonce_field'); ?>
         <?php if ($is_map_row): ?>
-            <!-- Форма для msa_tool_map_keys -->
+            <!-- Form for msa_tool_map_keys -->
             <table class="form-table">
                 <tr>
                     <th><label for="region_slug">Region Slug</label></th>
@@ -81,7 +80,7 @@ $is_map_row = isset($_GET['new-map-row']);
                 </tr>
             </table>
         <?php else: ?>
-            <!-- Форма для msa_tool_data с полем Subcategory -->
+            <!-- Form for msa_tool_data with Subcategory field -->
             <table class="form-table">
                 <tr>
                     <th><label for="region">Region</label></th>

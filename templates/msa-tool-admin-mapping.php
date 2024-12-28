@@ -1,28 +1,28 @@
 <?php
 global $wpdb;
 
-// Ім'я таблиці
+// Table name
 $table_name = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
 
-// Установка параметрів сортування
-$orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id'; // Поле для сортування
-$order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'ASC'; // Напрямок сортування
+// Set sorting parameters
+$orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id'; // Column to sort by
+$order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'ASC'; // Sort direction
 
-// Дозволені поля для сортування
+// Allowed columns for sorting
 $allowed_columns = ['id', 'region_slug', 'map_id'];
 if (!in_array($orderby, $allowed_columns)) {
     $orderby = 'id';
 }
 
-// Отримання поточної сторінки
-$paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1; // Поточна сторінка
-$per_page = 50; // Кількість записів на сторінці
-$offset = ($paged - 1) * $per_page; // Зміщення
+// Get the current page
+$paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1; // Current page
+$per_page = 50; // Records per page
+$offset = ($paged - 1) * $per_page; // Offset
 
-// Отримання загальної кількості записів
+// Get the total number of records
 $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
 
-// Отримання даних із сортуванням і пагінацією
+// Retrieve data with sorting and pagination
 $results = $wpdb->get_results(
     $wpdb->prepare(
         "SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
@@ -32,7 +32,7 @@ $results = $wpdb->get_results(
     ARRAY_A
 );
 
-// Отримання поточного параметра сторінки
+// Get the current page parameter
 $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa-tool-region-mapping';
 ?>
 
@@ -41,69 +41,66 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
     <h2>New Mapping</h2>
     <a href="<?php echo admin_url('admin.php?page=msa-tool-add&new-map-row'); ?>" class="button button-primary">Add Map Row</a>
 
-    <?php
-    // Перевірка наявності даних
-    if (!empty($results)) {
-        echo '<table class="widefat fixed" style="margin-top: 20px;">';
-        echo '<thead>';
-        echo '<tr>';
+    <?php if (!empty($results)): ?>
+        <table class="widefat fixed" style="margin-top: 20px;">
+            <thead>
+            <tr>
+                <?php
+                // Function to add sorting links
+                function sort_link($column, $current_orderby, $current_order, $current_page)
+                {
+                    $next_order = ($current_orderby === $column && $current_order === 'ASC') ? 'DESC' : 'ASC';
+                    return '<a href="' . esc_url(add_query_arg(['orderby' => $column, 'order' => $next_order], admin_url('admin.php?page=' . $current_page))) . '">' . ucfirst(str_replace('_', ' ', $column)) . '</a>';
+                }
 
-        // Функція для додавання посилання на сортування
-        function sort_link($column, $current_orderby, $current_order, $current_page)
-        {
-            $next_order = ($current_orderby === $column && $current_order === 'ASC') ? 'DESC' : 'ASC';
-            return '<a href="' . esc_url(add_query_arg(['orderby' => $column, 'order' => $next_order], admin_url('admin.php?page=' . $current_page))) . '">' . ucfirst(str_replace('_', ' ', $column)) . '</a>';
-        }
+                echo '<th>' . sort_link('id', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('region_slug', $orderby, $order, $current_page) . '</th>';
+                echo '<th>' . sort_link('map_id', $orderby, $order, $current_page) . '</th>';
+                ?>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($results as $row): ?>
+                <?php
+                $edit_url = admin_url('admin.php?page=msa-tool-edit&edit-map-row&id=' . $row['id']);
+                $delete_url = wp_nonce_url(
+                    admin_url('admin.php?page=msa-tool-region-mapping&delete_id=' . $row['id']),
+                    'msa_tool_delete_map_nonce_' . $row['id']
+                );
+                ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html($row['id']); ?>
+                        <a href="<?php echo esc_url($edit_url); ?>" class="button button-secondary">Edit</a>
+                        <a href="<?php echo esc_url($delete_url); ?>" class="button button-secondary delete-link">Delete</a>
+                    </td>
+                    <td><?php echo esc_html($row['region_slug']); ?></td>
+                    <td><?php echo esc_html($row['map_id']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
 
-        echo '<th>' . sort_link('id', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('region_slug', $orderby, $order, $current_page) . '</th>';
-        echo '<th>' . sort_link('map_id', $orderby, $order, $current_page) . '</th>';
-        echo '</tr>';
-        echo '</thead>';
-        echo '<tbody>';
-
-        // Виведення даних
-        foreach ($results as $row) {
-            $edit_url = admin_url('admin.php?page=msa-tool-edit&edit-map-row&id=' . $row['id']);
-            $delete_url = wp_nonce_url(
-                admin_url('admin.php?page=msa-tool-region-mapping&delete_id=' . $row['id']),
-                'msa_tool_delete_map_nonce_' . $row['id']
-            );
-
-            echo '<tr>';
-            echo '<td>' . esc_html($row['id']) . '<a href="' . esc_url($edit_url) . '" class="button button-secondary">Edit</a> ';
-            echo '<a href="' . esc_url($delete_url) . '" class="button button-secondary delete-link">Delete</a></td>';
-            echo '<td>' . esc_html($row['region_slug']) . '</td>';
-            echo '<td>' . esc_html($row['map_id']) . '</td>';
-            echo '</tr>';
-        }
-
-
-        echo '</tbody>';
-        echo '</table>';
-
-        // Пагінація
+        <?php
+        // Pagination
         $total_pages = ceil($total_items / $per_page);
 
-        if ($total_pages > 1) {
-            echo '<div class="tablenav bottom">';
-            echo '<div class="tablenav-pages">';
-
-            // Посилання на пагінацію
-            for ($i = 1; $i <= $total_pages; $i++) {
-                $class = ($i == $paged) ? 'class="current"' : '';
-                $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
-                echo '<a ' . $class . ' href="' . $url . '">' . $i . '</a> ';
-            }
-
-            echo '</div>';
-            echo '</div>';
-        }
-    } else {
-        // Якщо даних немає
-        echo '<p>No mapping data available in the database.</p>';
-    }
-    ?>
+        if ($total_pages > 1): ?>
+            <div class="tablenav bottom">
+                <div class="tablenav-pages">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <?php
+                        $class = ($i == $paged) ? 'class="current"' : '';
+                        $url = esc_url(add_query_arg(['paged' => $i, 'orderby' => $orderby, 'order' => $order], admin_url('admin.php?page=' . $current_page)));
+                        ?>
+                        <a <?php echo $class; ?> href="<?php echo $url; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php else: ?>
+        <p>No mapping data available in the database.</p>
+    <?php endif; ?>
 </div>
 
 <script>
@@ -118,4 +115,3 @@ $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'msa
         });
     });
 </script>
-

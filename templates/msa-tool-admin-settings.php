@@ -1,14 +1,13 @@
 <div class="wrap">
     <h1>MSA Comparison Tool</h1>
 
-
-    <!-- Настройки-->
+    <!-- Settings Section -->
     <h2>MSA Tool Settings</h2>
     <form method="post">
         <?php wp_nonce_field('msa_tool_settings', 'msa_tool_settings_nonce'); ?>
 
         <table class="form-table">
-            <!-- Опция отключения скриптов ArcGIS -->
+            <!-- Option to disable ArcGIS scripts -->
             <tr>
                 <th scope="row">
                     <label for="msa_tool_disable_arcgis">Disable ArcGIS Scripts:</label>
@@ -20,7 +19,7 @@
                 </td>
             </tr>
 
-            <!-- Опция для мультисайта -->
+            <!-- Multisite Global Data Option -->
             <?php if (is_multisite()) : ?>
                 <tr>
                     <th scope="row">
@@ -33,6 +32,8 @@
                     </td>
                 </tr>
             <?php endif; ?>
+
+            <!-- Export File Additional Info -->
             <tr>
                 <th scope="row">
                     <label for="msa_tool_export_info">Export File Additional Info:</label>
@@ -50,7 +51,6 @@
                     <p class="description">Enter additional information to display at the end of the exported PDF file. You can include headers and paragraphs.</p>
                 </td>
             </tr>
-
         </table>
 
         <p class="submit">
@@ -58,14 +58,14 @@
         </p>
     </form>
 
-
+    <!-- Import Section -->
     <h2>Import Settings</h2>
     <p>You can upload an XLSX file for debugging or importing data into the database.</p>
     <p>Need help? <a href="<?php echo esc_url(plugins_url('assets/example-data-short.xlsx', dirname(__FILE__))); ?>" download>
             Download the example XLSX file
         </a>.
     </p>
-    <!-- Форма для загрузки файла -->
+
     <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('msa_tool_import', 'msa_tool_import_nonce'); ?>
 
@@ -85,8 +85,7 @@
         </p>
     </form>
 
-
-
+    <!-- Recent Imports Section -->
     <h2>Recent Imports</h2>
     <?php
     $import_logs = get_option('msa_tool_import_logs', []);
@@ -117,6 +116,4 @@
         echo '<p>No imports logged yet.</p>';
     }
     ?>
-
-
 </div>

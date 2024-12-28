@@ -8,20 +8,37 @@ class MSA_Tool_Activator
         self::create_directories();
 
 
-        // Для мультисайту
+        /**
+         * Global Mode Explanation:
+         *
+         * In multisite WordPress networks, global mode centralizes data management by storing all data
+         * in a designated "global site" within the network. This enables centralized data handling and
+         * synchronization across all subsites.
+         *
+         * Key Features:
+         * 1. **Centralized Data**: All data is stored and managed in the global site's database tables.
+         * 2. **Context Switching**: Functions temporarily switch to the global site context when accessing
+         *    or modifying data, and return to the original site context afterward.
+         * 3. **Access Restriction**: Attempts to access plugin settings or data editing pages on any site
+         *    other than the global site are blocked. This ensures consistent and centralized data management.
+         *
+         * When Global Mode is disabled:
+         * - Each subsite in the network uses its local database tables for plugin data.
+         */
+
         if (is_multisite()) {
             $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
             foreach ($blog_ids as $blog_id) {
                 switch_to_blog($blog_id);
 
-                // Створення таблиць для кожного сайту
+                // Create tables for each site
                 self::create_data_table($wpdb->get_blog_prefix() . 'msa_tool_data');
                 self::create_map_keys_table($wpdb->get_blog_prefix() . 'msa_tool_map_keys');
 
                 restore_current_blog();
             }
         } else {
-            // Для одиночного сайту
+            // For a single site
             self::create_data_table($wpdb->get_blog_prefix() . 'msa_tool_data');
             self::create_map_keys_table($wpdb->get_blog_prefix() . 'msa_tool_map_keys');
         }
@@ -31,7 +48,7 @@ class MSA_Tool_Activator
     {
         global $wpdb;
 
-        // Проверяем, существует ли таблица
+        // Check if the table exists
         if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
             $charset_collate = $wpdb->get_charset_collate();
 
@@ -43,9 +60,7 @@ class MSA_Tool_Activator
             region VARCHAR(255) NOT NULL,
             slug VARCHAR(255) NOT NULL,
             value TEXT NOT NULL,
-            PRIMARY KEY (id)
-            -- Ранее был UNIQUE KEY unique_data (category(50), subcategory(50), indicator(50), region(50))
-            -- Если не нужен уникальный индекс, просто не указываем его.
+            PRIMARY KEY (id)            
         ) $charset_collate;";
 
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -58,15 +73,14 @@ class MSA_Tool_Activator
     {
         global $wpdb;
 
-        // Перевірка, чи існує таблиця
         if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
             $charset_collate = $wpdb->get_charset_collate();
 
-            // SQL для створення таблиці msa_tool_map_keys
+            // SQL to create the msa_tool_map_keys table
             $sql = "CREATE TABLE $table_name (
     id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     region_slug VARCHAR(255) NOT NULL,
-    map_id VARCHAR(255) NULL, -- Дозволяємо NULL
+    map_id VARCHAR(255) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY unique_slug (region_slug(100)),
     UNIQUE KEY unique_map_id (map_id(100))
@@ -75,24 +89,20 @@ class MSA_Tool_Activator
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
             dbDelta($sql);
 
-//            error_log("Table created: $table_name");
         }
     }
 
     private static function create_directories()
     {
-        // Получаем путь к папке uploads
         $upload_dir = wp_upload_dir();
         $base_dir = $upload_dir['basedir'] . '/msa-tool';
 
-        // Папки, которые нужно создать
         $directories = [
             $base_dir,
             $base_dir . '/exports',
             $base_dir . '/imports',
         ];
 
-        // Проходим по массиву и создаем каждую папку
         foreach ($directories as $dir) {
             if (!file_exists($dir)) {
                 if (wp_mkdir_p($dir)) {
