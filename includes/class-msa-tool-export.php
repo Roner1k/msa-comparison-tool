@@ -1,5 +1,8 @@
 <?php
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class MSA_Custom_TCPDF extends TCPDF
 {
     public function Header()
@@ -28,14 +31,21 @@ class MSA_Custom_TCPDF extends TCPDF
         $this->SetXY(10 + $new_width + 20, 10 + ($new_height / 2) - 5); // Текст выровнен по центру логотипа
         $this->Cell(0, 0, 'HOW ORLANDO COMPARES?', 0, 0, 'L');
     }
+
+    public function Footer()
+    {
+        // Устанавливаем положение в 15 мм от нижней части страницы
+        $this->SetY(-15);
+        // Устанавливаем шрифт
+        $this->SetFont('helvetica', 'I', 8);
+        // Устанавливаем цвет текста
+        $this->SetTextColor(128, 128, 128);
+        // Добавляем нумерацию страниц
+        $this->Cell(0, 10, 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages(), 0, 0, 'C');
+    }
 }
 
-if (!class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
-    require_once plugin_dir_path(__FILE__) . '../vendor/autoload.php';
-}
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 class MSA_Tool_Export
@@ -95,13 +105,11 @@ class MSA_Tool_Export
                             if ($colIndex === 0) {
                                 $html .= '<td style="font-size: 9px; font-weight: bold; color: black; text-align: left; padding: 4px;">'
                                     . htmlspecialchars($cell) . '</td>';
-                            }
-                            // Вторая колонка (оранжевый фон и белый текст)
+                            } // Вторая колонка (оранжевый фон и белый текст)
                             elseif ($colIndex === 1) {
                                 $html .= '<td style="font-size: 9px; background-color: rgb(244, 123, 32); color: white; font-weight: normal; text-align: right; padding: 4px;">'
                                     . htmlspecialchars($cell) . '</td>';
-                            }
-                            // Остальные колонки
+                            } // Остальные колонки
                             else {
                                 $html .= '<td style="font-size: 9px; font-weight: normal; color: black; text-align: left; padding: 4px;">'
                                     . htmlspecialchars($cell) . '</td>';
@@ -132,7 +140,7 @@ class MSA_Tool_Export
                 $additional_info = get_option('msa_tool_export_info', '');
             }
 
-             // Если текст есть, добавляем его в PDF
+            // Если текст есть, добавляем его в PDF
             if (!empty($additional_info)) {
                 $pdf->AddPage(); // Добавляем новую страницу для текста (если требуется)
                 $pdf->SetFont('helvetica', '', 12); // Шрифт Helvetica, обычный стиль
@@ -174,91 +182,57 @@ class MSA_Tool_Export
         try {
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-
-            // Устанавливаем заголовок
             $sheet->setTitle('MSA Comparison');
 
-            // Устанавливаем начальные координаты
-            $currentRow = 1;
+            // Устанавливаем заголовки
+            $sheet->setCellValue('A1', 'Category');
+            $sheet->setCellValue('B1', 'Indicator / Subcategory');
 
-            // Генерация данных
+            // Генерируем заголовки для регионов
+            $column = 'C';
+            $regions = [];
+            if (!empty($categories[0]['headers'][0])) {
+                foreach ($categories[0]['headers'][0] as $index => $header) {
+                    if ($index % 2 === 1) { // Только названия регионов
+                        $sheet->setCellValue("{$column}1", $header);
+                        $regions[] = $header;
+                        $column++;
+                        $sheet->setCellValue("{$column}1", 'Rank');
+                        $column++;
+                    }
+                }
+            }
+
+            // Заполняем строки
+            $row = 2; // Начало данных
             foreach ($categories as $category) {
-                // Заголовок категории
-                $sheet->setCellValue("A{$currentRow}", strtoupper($category['name']));
-                $sheet->getStyle("A{$currentRow}")->getFont()->setBold(true)->setSize(14);
-                $sheet->mergeCells("A{$currentRow}:Z{$currentRow}");
-                $currentRow++;
+                foreach ($category['rows'] as $dataRow) {
+                    // Первая колонка: категория
+                    $sheet->setCellValue("A{$row}", $category['name']);
 
-                // Заголовки таблицы
-                if (!empty($category['headers'])) {
-                    foreach ($category['headers'] as $headerRow) {
-                        $col = 'A';
-                        foreach ($headerRow as $header) {
-                            $sheet->setCellValue("{$col}{$currentRow}", $header);
-                            $sheet->getStyle("{$col}{$currentRow}")->getFont()->setBold(true);
+                    // Вторая колонка: индикатор или подкатегория
+                    $sheet->setCellValue("B{$row}", $dataRow[0]);
+
+                    // Заполняем значения и ранги по регионам
+                    $col = 'C';
+                    foreach ($dataRow as $index => $value) {
+                        if ($index > 0) { // Пропускаем первый элемент (он уже в колонке B)
+                            $sheet->setCellValue("{$col}{$row}", $value);
                             $col++;
                         }
-                        $currentRow++;
                     }
+
+                    $row++;
                 }
-
-                // Данные таблицы
-                if (!empty($category['rows'])) {
-                    foreach ($category['rows'] as $rowIndex => $row) {
-                        $col = 'A';
-                        foreach ($row as $cell) {
-                            $sheet->setCellValue("{$col}{$currentRow}", $cell);
-
-                            // Чередуем цвет фона строк
-                            if ($rowIndex % 2 === 0) {
-                                $sheet->getStyle("{$col}{$currentRow}")
-                                    ->getFill()
-                                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                                    ->getStartColor()
-                                    ->setARGB('F5F5F5');
-                            }
-
-                            $col++;
-                        }
-                        $currentRow++;
-                    }
-                }
-
-                $currentRow++; // Пропускаем строку перед новой категорией
             }
 
-            // Получаем дополнительный текст
-            $additional_info = '';
-            if (is_multisite()) {
-                $global_blog_id = get_site_option('msa_tool_global_data', null);
-                if ($global_blog_id) {
-                    switch_to_blog($global_blog_id);
-                    $additional_info = get_option('msa_tool_export_info', '');
-                    restore_current_blog();
-                } else {
-                    $additional_info = get_option('msa_tool_export_info', '');
-                }
-            } else {
-                $additional_info = get_option('msa_tool_export_info', '');
-            }
-
-            // Если текст есть, добавляем его в конец файла
-            if (!empty($additional_info)) {
-                $sheet->setCellValue("A{$currentRow}", 'Additional Information:');
-                $sheet->getStyle("A{$currentRow}")->getFont()->setBold(true)->setSize(12);
-                $currentRow++;
-                $sheet->setCellValue("A{$currentRow}", strip_tags($additional_info));
-                $sheet->getStyle("A{$currentRow}")->getAlignment()->setWrapText(true);
-            }
-
-            // Сохранение файла
+            // Сохранение Excel файла
             $timestamp = time();
             $upload_dir = wp_upload_dir();
             $base_dir = $upload_dir['basedir'] . '/msa-tool/exports';
             $base_url = $upload_dir['baseurl'] . '/msa-tool/exports';
-            $dynamic_filename = "Orlando-MSA-Comparison-{$timestamp}.xlsx";
-            $output_path = "{$base_dir}/{$dynamic_filename}";
-            $file_url = "{$base_url}/{$dynamic_filename}";
+            $filename = "Orlando-MSA-Comparison-{$timestamp}.xlsx";
+            $output_path = "{$base_dir}/{$filename}";
 
             if (!file_exists($base_dir)) {
                 wp_mkdir_p($base_dir);
@@ -267,14 +241,12 @@ class MSA_Tool_Export
             $writer = new Xlsx($spreadsheet);
             $writer->save($output_path);
 
-            return $file_url;
-
+            return "{$base_url}/{$filename}";
         } catch (Exception $e) {
             error_log("[EXCEL EXPORT ERROR] " . $e->getMessage());
             return null;
         }
     }
-
 
 
 }

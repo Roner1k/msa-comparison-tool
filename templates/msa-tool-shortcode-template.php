@@ -57,7 +57,7 @@
                         <button id="msa-toggle-all">Toggle All</button>
                     </div>
                     <div>
-                        <a id="view-hidden-fields">View Hidden Fields</a>
+                        <a id="msa-view-hidden-fields">View Hidden Fields</a>
                     </div>
 
                 </div>
@@ -132,16 +132,10 @@
                                 ?>
                                 <!-- Основная строка индикатора -->
                                 <tr class="table-row"
-                                    data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>">
+                                    data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>"
+                                    data-has-subcategories="<?php echo $hasSubcategories ? 'true' : 'false'; ?>">
                                     <td>
-                                        <?php
-                                        // Если есть подкатегории, можно сделать плюсик для раскрытия
-                                        if ($hasSubcategories): ?>
-                                            <span class="toggle-subcategories"
-                                                  data-indicator="<?php echo esc_attr($indicator); ?>">
-                                                ➕
-                                            </span>
-                                        <?php endif; ?>
+
                                         <?php echo esc_html($indicator); ?>
                                     </td>
 
@@ -188,8 +182,7 @@
                                         $subRowIndex = $rowIndex . '-sc-' . sanitize_title($subcatName);
                                         ?>
                                         <tr class="table-row msa-subcategory-row"
-                                            data-parent-indicator="<?php echo esc_attr($indicator); ?>"
-                                            data-subcat-row-id="row-<?php echo esc_attr($category); ?>-<?php echo esc_attr($subRowIndex); ?>"
+                                            data-parent-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>"
                                             style="display: none;">
                                             <!-- Первый столбец: Название subcategory -->
                                             <td>

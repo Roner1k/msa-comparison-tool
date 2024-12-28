@@ -77,17 +77,24 @@ jQuery(document).ready(function ($) {
     });
 
     // Показ скрытых строк
-    $("#view-hidden-fields").on("click", function () {
+    $("#msa-view-hidden-fields").on("click", function () {
         $(".hidden-row").removeClass("hidden-row");
     });
 });
 
 //subcats
+// jQuery(document).ready(function ($) {
+//     $('.toggle-subcategories').on('click', function () {
+//         const indicator = $(this).data('indicator');
+//         // Найти все строки .msa-subcategory-row у которых data-parent-indicator=indicator
+//         $(`.msa-subcategory-row[data-parent-indicator="${indicator}"]`).toggle();
+//     });
+// });
 jQuery(document).ready(function ($) {
-    $('.toggle-subcategories').on('click', function () {
-        const indicator = $(this).data('indicator');
-        // Найти все строки .msa-subcategory-row у которых data-parent-indicator=indicator
-        $(`.msa-subcategory-row[data-parent-indicator="${indicator}"]`).toggle();
+    $('.table-row[data-has-subcategories="true"]').on('click', function () {
+        const rowId = $(this).data('row-id');
+        // Найти все строки .msa-subcategory-row с data-parent-row-id равным rowId
+        $(`.msa-subcategory-row[data-parent-row-id="${rowId}"]`).toggle();
     });
 });
 

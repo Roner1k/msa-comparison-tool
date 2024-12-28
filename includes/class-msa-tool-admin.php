@@ -9,44 +9,7 @@ class MSA_Tool_Admin
 
     }
 
-    /*
-        public static function render_settings_page()
-        {
-            // Обработка импорта файла
-            if (isset($_POST['msa_tool_import_submit'])) {
-                MSA_Tool_Import::handle_file_import();
-            }
 
-            // Обработка общей формы настроек (ArcGIS и Global Mode)
-            if (isset($_POST['msa_tool_settings_submit']) && check_admin_referer('msa_tool_settings', 'msa_tool_settings_nonce')) {
-                // Обработка опции ArcGIS
-                $disable_arcgis = isset($_POST['msa_tool_disable_arcgis']) ? 1 : 0;
-                update_option('msa_tool_disable_arcgis', $disable_arcgis);
-
-                // Обработка опции Global Data Mode, только если мультисайт
-                if (is_multisite()) {
-                    $global_data = isset($_POST['msa_tool_global_data']) ? (int)get_current_blog_id() : null;
-
-                    if ($global_data) {
-                        update_site_option('msa_tool_global_data', $global_data);
-                    } else {
-                        delete_site_option('msa_tool_global_data');
-                    }
-                }
-
-                // Добавляем сообщение об успешном сохранении настроек
-                add_settings_error('msa_tool_messages', 'msa_tool_success', 'Settings updated successfully.', 'success');
-            }
-
-            // Проверяем, активен ли глобальный режим
-            if (self::render_global_mode_message()) {
-                return;
-            }
-
-            // Подключаем шаблон страницы настроек
-            include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-settings.php';
-        }
-        */
     public static function render_settings_page()
     {
         // Обработка импорта файла
@@ -123,6 +86,11 @@ class MSA_Tool_Admin
         // Отображаем уведомления
         settings_errors('msa_tool_messages');
 
+        // Проверяем, активен ли глобальный режим
+        if (self::render_global_mode_message()) {
+            return;
+        }
+
         // Подключаем шаблон
         include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-results.php';
     }
@@ -191,6 +159,11 @@ class MSA_Tool_Admin
         // Отображаем уведомления
         settings_errors('msa_tool_messages');
 
+        // Проверяем, активен ли глобальный режим
+        if (self::render_global_mode_message()) {
+            return;
+        }
+
         // Подключаем шаблон (в котором уже есть поле subcategory)
         include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-edit.php';
     }
@@ -242,6 +215,11 @@ class MSA_Tool_Admin
         // Отображаем уведомления
         settings_errors('msa_tool_messages');
 
+        // Проверяем, активен ли глобальный режим
+        if (self::render_global_mode_message()) {
+            return;
+        }
+
         // Вывод шаблона формы
         include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-add.php';
     }
@@ -280,6 +258,11 @@ class MSA_Tool_Admin
         // Отображаем уведомления
         settings_errors('msa_tool_messages');
 
+        // Проверяем, активен ли глобальный режим
+        if (self::render_global_mode_message()) {
+            return;
+        }
+
         // Подключаем шаблон
         include plugin_dir_path(__FILE__) . '../templates/msa-tool-admin-mapping.php';
     }
@@ -297,7 +280,7 @@ class MSA_Tool_Admin
 
                 echo '<div class="notice notice-warning" style="margin-top: 20px;">
                 <p><strong>Global Mode Enabled:</strong> Data is managed globally from the site 
-                <a href="' . esc_url($global_site_url) . '" target="_blank">' . esc_html($global_site_name) . '</a>. 
+                <a href="' . esc_url($global_site_url) . '/wp-admin/admin.php?page=msa-tool-settings" target="_blank">' . esc_html($global_site_name) . '</a>. 
                 Editing or viewing data on this subsite is disabled.</p>
               </div>';
                 return true; // Глобальный режим активен на другом сайте
