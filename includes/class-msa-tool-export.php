@@ -67,51 +67,65 @@ class MSA_Tool_Export
             $pdf->SetAutoPageBreak(true, 20);
             $pdf->AddPage();
 
-            // Generate PDF content (tables)
             foreach ($categories as $category) {
-                // Category header
                 $pdf->SetFont('helvetica', 'B', 14);
                 $pdf->SetTextColor(244, 123, 32);
                 $pdf->Cell(0, 10, $category['name'], 0, 1, 'L');
                 $pdf->Ln(5);
 
-                // Table styling
-                $html = '<table cellpadding="4" cellspacing="0" style="border-collapse: collapse;">';
+                $html = '<table cellpadding="4" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
 
-                // Header rows
                 if (!empty($category['headers'])) {
-                    foreach ($category['headers'] as $headerRow) {
-                        $html .= '<tr>';
-                        foreach ($headerRow as $cell) {
-                            $html .= '<th style="font-size: 11px; font-weight: bold; color: rgb(244, 123, 32); text-align: center;">' . htmlspecialchars($cell) . '</th>';
-                        }
-                        $html .= '</tr>';
+                    $headerRow = $category['headers'][0];
+                    $html .= '<tr>';
+
+                    $html .= '<th style="font-size: 11px; font-weight: bold; text-align: left;"></th>';
+
+                    $rankExists = in_array('Rank', $headerRow);
+
+                    for ($i = 1; $i < count($headerRow); $i += ($rankExists ? 2 : 1)) {
+                        $regionName = htmlspecialchars($headerRow[$i]);
+                        $regionHeader = $rankExists
+                            ? $regionName . '<br><span style="font-size: 9px; font-weight: normal;">(Rank)</span>'
+                            : $regionName;
+                        $html .= '<th style="font-size: 11px; font-weight: bold; color: rgb(244, 123, 32); text-align: right;">' . $regionHeader . '</th>';
                     }
+                    $html .= '</tr>';
                 }
 
-                // Data rows
+
+
                 if (!empty($category['rows'])) {
                     foreach ($category['rows'] as $rowIndex => $row) {
                         $rowColor = ($rowIndex % 2 === 0) ? 'background-color: #F5F5F5;' : 'background-color: #FFFFFF;';
                         $html .= '<tr style="' . $rowColor . '">';
-                        foreach ($row as $colIndex => $cell) {
-                            $cellStyle = $colIndex === 0
-                                ? 'font-weight: bold; color: black;'
-                                : ($colIndex === 1
-                                    ? 'background-color: rgb(244, 123, 32); color: white;text-align:right;font-weight: normal;'
-                                    : 'color: black;text-align:right;font-weight: normal;');
-                            $html .= '<td style="font-size: 9px;text-align: left; padding: 4px; ' . $cellStyle . '">' . htmlspecialchars($cell) . '</td>';
+
+                        $html .= '<td style="font-size: 9px; font-weight: bold; color: black; text-align: left; padding: 4px;">' . htmlspecialchars($row[0]) . '</td>';
+
+                        for ($colIndex = 1; $colIndex < count($row); $colIndex += ($rankExists ? 2 : 1)) {
+                            $value = htmlspecialchars($row[$colIndex]);
+                            $rank = $rankExists && isset($row[$colIndex + 1]) && $row[$colIndex + 1] !== '-' ? htmlspecialchars($row[$colIndex + 1]) : null;
+                            $combinedValue = $rank ? "$value ($rank)" : $value;
+
+                            if ($colIndex === 1) {
+                                $html .= '<td style="font-size: 9px; background-color: rgb(244, 123, 32); color: white; text-align: right; padding: 4px; font-weight: normal;">' . $combinedValue . '</td>';
+                            } else {
+                                $html .= '<td style="font-size: 9px; color: black; text-align: right; padding: 4px; font-weight: normal;">' . $combinedValue . '</td>';
+                            }
                         }
                         $html .= '</tr>';
                     }
                 }
+
+
+
+
 
                 $html .= '</table>';
                 $pdf->writeHTML($html, true, false, true, false, '');
                 $pdf->Ln(10);
             }
 
-            // Additional information
             $additional_info = '';
             if (is_multisite()) {
                 $global_blog_id = get_site_option('msa_tool_global_data', null);
@@ -133,7 +147,6 @@ class MSA_Tool_Export
                 $pdf->writeHTML($additional_info, true, false, true, false, '');
             }
 
-            // Save the PDF
             $timestamp = time();
             $upload_dir = wp_upload_dir();
             $base_dir = $upload_dir['basedir'] . '/msa-tool/exports';

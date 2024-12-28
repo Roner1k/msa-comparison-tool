@@ -146,14 +146,12 @@
 }
 
 
-
-
 .msa-table .table-row[data-has-subcategories="true"]::after {
-    content: "\271A";
+    content: "\002B";
     color: #F47B20;
-    font-size: 10px;
+    font-size: 1em;
     position: absolute;
-    top: 50%;
+    top: 48%;
     left: 4px;
     transform: translateY(-50%);
     cursor: pointer;
@@ -162,10 +160,18 @@
     width: 12px;
     text-align: center;
     z-index: 10;
+    font-weight: 700;
+    line-height: 1;
+
+}
+
+.msa-table .table-row.expanded::after {
+    content: "\2212";
+
 }
 
 .msa-table .table-row[data-has-subcategories="true"] td:first-child {
-    padding-left: 20px;
+    padding-left: 23px;
 }
 
 .msa-table .msa-rank-column {

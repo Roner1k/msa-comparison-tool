@@ -15,7 +15,8 @@ class MSA_Tool_Import
         $file_name = $_FILES['msa_tool_import_file']['name'];
 
         $upload_dir = wp_upload_dir();
-        $target_dir = trailingslashit($upload_dir['basedir']) . 'msa-imports/';
+        $target_dir = trailingslashit($upload_dir['basedir']) . 'msa-tool/imports/';
+
 
         if (!file_exists($target_dir)) {
             wp_mkdir_p($target_dir);

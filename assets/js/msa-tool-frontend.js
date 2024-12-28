@@ -71,12 +71,32 @@ jQuery(document).ready(function ($) {
         category.find(".hidden-row").removeClass("hidden-row");
     });
 
-
+/*
     // Toggle subcategories
     $('.table-row[data-has-subcategories="true"]').on("click", function () {
         const rowId = $(this).data("row-id");
         $(`.msa-subcategory-row[data-parent-row-id="${rowId}"]`).toggle();
     });
+    */
+
+    // Toggle subcategories
+    $('.table-row[data-has-subcategories="true"]').on("click", function () {
+        const rowId = $(this).data("row-id");
+
+        // Toggle visibility of subcategories
+        const subcategoryRows = $(`.msa-subcategory-row[data-parent-row-id="${rowId}"]`);
+        const isExpanded = subcategoryRows.is(":visible");
+
+        // Toggle class 'expanded' based on visibility
+        if (isExpanded) {
+            subcategoryRows.hide();
+            $(this).removeClass("expanded");
+        } else {
+            subcategoryRows.show();
+            $(this).addClass("expanded");
+        }
+    });
+
 
     // Function to reveal all categories and subcategories
     function revealAllForExport() {
@@ -86,6 +106,9 @@ jQuery(document).ready(function ($) {
 
         // Show all subcategories
         $(".msa-subcategory-row").show();
+        $(".table-row[data-has-subcategories='true']").addClass("expanded");
+
+
     }
 
     // General function to collect category data
