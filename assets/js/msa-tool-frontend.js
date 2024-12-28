@@ -7,9 +7,6 @@ jQuery(document).ready(function ($) {
         categoryContent.toggle();
     });
 
-    // Open the first accordion on page load
-    $(".msa-category").first().find(".msa-category-content").show();
-
     // "Toggle All" button
     let allExpanded = false; // State of all accordions
 
@@ -68,11 +65,12 @@ jQuery(document).ready(function ($) {
         const rowId = $(this).data("row-id");
         $(`tr[data-row-id="${rowId}"]`).addClass("hidden-row");
     });
-
-    // Show hidden rows
-    $("#msa-view-hidden-fields").on("click", function () {
-        $(".hidden-row").removeClass("hidden-row");
+    // Show hidden
+    $(".msa-view-hidden-fields").on("click", function () {
+        const category = $(this).closest(".msa-category");
+        category.find(".hidden-row").removeClass("hidden-row");
     });
+
 
     // Toggle subcategories
     $('.table-row[data-has-subcategories="true"]').on("click", function () {

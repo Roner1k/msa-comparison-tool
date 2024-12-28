@@ -64,7 +64,7 @@ class MSA_Tool_Export
             $pdf->SetKeywords('PDF, Export, MSA');
 
             $pdf->SetMargins(15, 40, 15);
-            $pdf->SetAutoPageBreak(TRUE, 20);
+            $pdf->SetAutoPageBreak(true, 20);
             $pdf->AddPage();
 
             // Generate PDF content (tables)
@@ -96,11 +96,11 @@ class MSA_Tool_Export
                         $html .= '<tr style="' . $rowColor . '">';
                         foreach ($row as $colIndex => $cell) {
                             $cellStyle = $colIndex === 0
-                                ? 'font-weight: bold;'
+                                ? 'font-weight: bold; color: black;'
                                 : ($colIndex === 1
-                                    ? 'background-color: rgb(244, 123, 32); color: white;'
-                                    : 'color: black;');
-                            $html .= '<td style="font-size: 9px; ' . $cellStyle . ' text-align: left; padding: 4px;">' . htmlspecialchars($cell) . '</td>';
+                                    ? 'background-color: rgb(244, 123, 32); color: white;text-align:right;font-weight: normal;'
+                                    : 'color: black;text-align:right;font-weight: normal;');
+                            $html .= '<td style="font-size: 9px;text-align: left; padding: 4px; ' . $cellStyle . '">' . htmlspecialchars($cell) . '</td>';
                         }
                         $html .= '</tr>';
                     }
@@ -112,9 +112,19 @@ class MSA_Tool_Export
             }
 
             // Additional information
-            $additional_info = is_multisite()
-                ? switch_to_blog_and_get_option('msa_tool_global_data', 'msa_tool_export_info')
-                : get_option('msa_tool_export_info', '');
+            $additional_info = '';
+            if (is_multisite()) {
+                $global_blog_id = get_site_option('msa_tool_global_data', null);
+                if ($global_blog_id) {
+                    switch_to_blog($global_blog_id);
+                    $additional_info = get_option('msa_tool_export_info', '');
+                    restore_current_blog();
+                } else {
+                    $additional_info = get_option('msa_tool_export_info', '');
+                }
+            } else {
+                $additional_info = get_option('msa_tool_export_info', '');
+            }
 
             if (!empty($additional_info)) {
                 $pdf->AddPage();
@@ -143,6 +153,7 @@ class MSA_Tool_Export
             return null;
         }
     }
+
 
     /**
      * Generates an Excel file and saves it in the export directory.
@@ -191,6 +202,38 @@ class MSA_Tool_Export
                 }
             }
 
+            // Add two empty rows before additional information
+            $row += 2;
+
+            // Add additional information below the data
+            $additional_info = '';
+            if (is_multisite()) {
+                $global_blog_id = get_site_option('msa_tool_global_data', null);
+                if ($global_blog_id) {
+                    switch_to_blog($global_blog_id);
+                    $additional_info = get_option('msa_tool_export_info', '');
+                    restore_current_blog();
+                } else {
+                    $additional_info = get_option('msa_tool_export_info', '');
+                }
+            } else {
+                $additional_info = get_option('msa_tool_export_info', '');
+            }
+
+            if (!empty($additional_info)) {
+                $sheet->setCellValue("A{$row}", 'Additional Information:');
+                $sheet->mergeCells("A{$row}:Z{$row}");
+                $sheet->getStyle("A{$row}")->getFont()->setBold(true);
+                $row++;
+
+                $lines = explode("\n", strip_tags($additional_info));
+                foreach ($lines as $line) {
+                    $sheet->setCellValue("A{$row}", $line);
+                    $sheet->mergeCells("A{$row}:Z{$row}");
+                    $row++;
+                }
+            }
+
             // Save the Excel file
             $timestamp = time();
             $upload_dir = wp_upload_dir();
@@ -212,4 +255,6 @@ class MSA_Tool_Export
             return null;
         }
     }
+
+
 }

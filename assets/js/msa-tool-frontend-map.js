@@ -149,9 +149,9 @@ jQuery(document).ready(function ($) {
                 const isRankColumn = $(this).hasClass("msa-rank-column");
 
                 if (selectedRegions.includes(slug)) {
-                    $(this).show();
+                    $(this).css("display", "table-cell");
                 } else {
-                    $(this).hide();
+                    $(this).css("display", "none");
                 }
             });
         }
@@ -175,7 +175,7 @@ jQuery(document).ready(function ($) {
             if (!isSelected && regionSlug !== alwaysActiveRegion) {
                 const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
                 if (otherSelectedCount >= maxRegions) {
-                    alert("You can select up to 5 additional locations besides Orlando.");
+                    alert("You can select up to 5 additional locations.");
                     return;
                 }
             }
@@ -217,7 +217,7 @@ jQuery(document).ready(function ($) {
                         if (!selectedRegions.includes(regionSlug)) {
                             const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
                             if (otherSelectedCount >= maxRegions) {
-                                alert("You can select up to 5 additional locations besides Orlando.");
+                                alert("You can select up to 5 additional locations.");
                                 return;
                             }
                         }
@@ -233,6 +233,8 @@ jQuery(document).ready(function ($) {
         view.when(() => {
             updateTableColumns();
             renderBaseRegions();
+            $("#msa-tool-content .msa-category").first().find(".msa-category-content").show();
+
         });
     });
 });

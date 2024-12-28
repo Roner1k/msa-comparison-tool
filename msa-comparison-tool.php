@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MSA Comparison Tool
  * Description: A tool for comparing MSA data with import, export, and visualization capabilities.
- * Version: 1.0a
+ * Version: 1.0
  * Author: NL
  */
 
