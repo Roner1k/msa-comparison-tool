@@ -3,36 +3,52 @@
     max-width: 100%;
 }
 
-.msa-tool-map {
+#msa-tool-container .msa-tool-control {
     display: flex;
     margin: 20px 0;
     flex-flow: row wrap;
     column-gap: 5%;
 }
 
-#msa-tool-container #msa-tool-map {
-    width: 65%;
-}
 
 #msa-tool-container #msa-tool-content {
     width: 100%;
 }
 
-.msa-rank-toggle {
+#msa-tool-container .msa-control-downloads h4 {
+    margin-top: 0;
+}
+
+#msa-tool-container .msa-buttons {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 6px;
+    padding-top: 6px;
+
+}
+
+#msa-tool-container .msa-control-btns {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+#msa-tool-container .msa-rank-toggle {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-bottom: 1rem;
+    /*margin-bottom: 1rem;*/
 }
 
-.msa-controls {
+#msa-tool-container .msa-controls {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 1rem;
 }
 
-.msa-category {
+#msa-tool-container .msa-category {
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -42,7 +58,7 @@
 
 }
 
-.msa-category-header {
+#msa-tool-container .msa-category-header {
     background-color: #f4f4f4;
     padding: 10px;
     display: flex;
@@ -51,24 +67,57 @@
     cursor: pointer;
     width: 100%;
     max-width: 100%;
+    position: relative;
+}
+
+#msa-tool-container .msa-category-header h3 {
+    margin: 0;
+}
+
+#msa-tool-container .msa-toggle-category span {
+    transform: rotateZ(-90deg);
+    display: block;
+    transition: all .1s ease-out;
+
+}
+
+#msa-tool-container .msa-category.msa-toggle-open .msa-toggle-category span {
+    transform: rotateZ(90deg)
+
 }
 
 
-.msa-category-content {
+#msa-tool-container .msa-category-header .msa-toggle-category {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+
+#msa-tool-container .msa-category-header .msa-toggle-category:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#msa-tool-container .msa-category-content {
     padding: 10px;
     display: none;
     width: 100%;
     max-width: 100%;
 }
 
-.msa-table-container {
+#msa-tool-container .msa-table-container {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     position: relative;
 }
 
-.msa-table {
+#msa-tool-container .msa-table {
     width: 100%;
     margin-bottom: 6px;
     border-collapse: collapse;
@@ -76,77 +125,82 @@
     width: 100%;
 }
 
-.msa-table tr:nth-child(even) {
+#msa-tool-container .msa-table tr:nth-child(even) {
     background-color: #f8f8f8;
 }
 
-.msa-table tr td:first-child,
-.msa-table tr td:first-child {
+#msa-tool-container .msa-table tr td:first-child,
+#msa-tool-container .msa-table tr td:first-child {
     background-color: #fff;
 
 }
 
-.msa-table tr:nth-child(even) td:first-child,
-.msa-table tr:nth-child(even) td:first-child {
+#msa-tool-container .msa-table tr:nth-child(even) td:first-child,
+#msa-tool-container .msa-table tr:nth-child(even) td:first-child {
     background-color: #f8f8f8;
 
 }
 
-.msa-table thead th {
+#msa-tool-container .msa-table thead th {
     color: #000 !important;
 }
 
-.msa-table th,
-.msa-table td {
+#msa-tool-container .msa-table th,
+#msa-tool-container .msa-table td {
     padding: 8px;
     text-align: left;
     border: none;
 }
 
-.msa-table th:first-child,
-.msa-table td:first-child {
+#msa-tool-container .msa-table th:first-child,
+#msa-tool-container .msa-table td:first-child {
     text-align: left;
     width: 35%;
     max-width: 35%;
     font-weight: 600;
     white-space: nowrap;
     text-align: left !important;
-
     position: sticky;
     left: 0;
     z-index: 1;
 }
 
-.msa-table th:not(:first-child),
-.msa-table td:not(:first-child) {
+#msa-tool-container .msa-table th:not(:first-child),
+#msa-tool-container .msa-table td:not(:first-child) {
     width: auto;
     text-align: center;
 }
 
-.msa-table th {
+#msa-tool-container .msa-table th {
     background-color: #f8f8f8;
 }
 
-.msa-table thead th {
+#msa-tool-container .msa-table thead th {
     white-space: nowrap;
 }
 
-.msa-table thead .hide-row-col {
+#msa-tool-container .msa-table thead .hide-row-col {
     display: none;
 }
 
-.msa-table .table-row {
+#msa-tool-container .msa-table .table-row {
     position: relative;
 }
 
-.msa-table .table-row[data-has-subcategories="true"],
-.msa-table .table-row[data-has-subcategories="true"] td:first-child {
+#msa-tool-container .msa-table .table-row[data-has-subcategories="true"],
+#msa-tool-container .msa-table .table-row[data-has-subcategories="true"] td:first-child {
     background: rgba(32, 64, 183, 0.1);
     cursor: pointer;
 }
 
+#msa-tool-container .msa-table .table-row[data-has-subcategories="true"]:not(.expanded) .hide-row-btn {
+    pointer-events: none;
+    opacity: 0;
 
-.msa-table .table-row[data-has-subcategories="true"]::after {
+}
+
+
+#msa-tool-container .msa-table .table-row[data-has-subcategories="true"]::after {
     content: "\002B";
     color: #F47B20;
     font-size: 1em;
@@ -165,25 +219,25 @@
 
 }
 
-.msa-table .table-row.expanded::after {
+#msa-tool-container .msa-table .table-row.expanded::after {
     content: "\2212";
 
 }
 
-.msa-table .table-row[data-has-subcategories="true"] td:first-child {
+#msa-tool-container .msa-table .table-row[data-has-subcategories="true"] td:first-child {
     padding-left: 23px;
 }
 
-.msa-table .msa-rank-column {
+#msa-tool-container .msa-table .msa-rank-column {
 
 }
 
-.msa-table .msa-rank-column.hidden {
+#msa-tool-container .msa-table .msa-rank-column.hidden {
     visibility: hidden;
     display: none !important;
 }
 
-.msa-table .hide-row-col {
+#msa-tool-container .msa-table .hide-row-col {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -193,8 +247,8 @@
     padding: 0 !important;
 }
 
-.msa-table .hide-row-btn {
-    background-color: transparent;
+#msa-tool-container .msa-table .hide-row-btn {
+    background-color: unset !important;
     border: none;
     box-shadow: none;
 
@@ -205,25 +259,18 @@
 }
 
 
-.msa-table .msa-region-column.msa-rank-column {
+#msa-tool-container .msa-table .msa-region-column.msa-rank-column {
     width: 1%;
     white-space: nowrap;
 }
 
-@media (max-width: 1100px) {
-    .msa-table td,
-    .msa-table th {
-        font-size: 14px;
-    }
-}
 
-#msa-tool-location-selector {
+#msa-tool-container #msa-tool-location-selector {
     margin: 20px 0;
     position: relative;
-    width: 30%;
 }
 
-.msa-custom-select {
+#msa-tool-container .msa-custom-select {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
@@ -232,14 +279,14 @@
     user-select: none;
 }
 
-.msa-selected-items {
+#msa-tool-container .msa-selected-items {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
     min-height: 20px;
 }
 
-.msa-selected-items span {
+#msa-tool-container .msa-selected-items span {
     padding: 5px 10px;
     background-color: #0073aa;
     color: #fff;
@@ -247,14 +294,14 @@
     font-size: 14px;
 }
 
-.msa-selected-items .msa-selected-item:after {
+#msa-tool-container .msa-selected-items .msa-selected-item:after {
     content: '\2715';
     display: inline-block;
     margin-left: 5px;
 
 }
 
-.msa-selected-items .msa-placeholder {
+#msa-tool-container .msa-selected-items .msa-placeholder {
     background: none;
     border: none;
     font-weight: 600;
@@ -262,7 +309,7 @@
 
 }
 
-.msa-show-all {
+#msa-tool-container .msa-show-all {
     text-align: right;
     width: 100%;
     display: inline-flex;
@@ -270,7 +317,7 @@
 
 }
 
-.msa-show-all .msa-view-hidden-fields {
+#msa-tool-container .msa-show-all .msa-view-hidden-fields {
     cursor: pointer;
     text-align: right;
     font-size: .9rem;
@@ -278,33 +325,35 @@
     text-decoration: underline;
 }
 
-.msa-toggle-all-container {
+#msa-tool-container .msa-toggle-all-container {
     display: flex;
     justify-content: flex-end;
 }
 
 
-#msa-tool-map .esri-view-surface.esri-view-surface--touch-none:after {
+#msa-tool-container #msa-tool-map .esri-view-surface.esri-view-surface--touch-none:after {
     content: unset !important;
 }
 
-#msa-tool-map .esri-component.esri-attribution.esri-widget {
+#msa-tool-container #msa-tool-map .esri-component.esri-attribution.esri-widget {
     display: none;
 }
 
-#msa-tool-content .msa-checkbox {
+#msa-tool-container #msa-tool-content .msa-checkbox {
     display: inline-flex;
     width: auto;
     align-items: center;
     cursor: pointer;
     gap: 8px;
+    margin-bottom: 0;
 }
 
-#msa-tool-content .msa-checkbox label {
+#msa-tool-container #msa-tool-content .msa-checkbox label {
     width: auto;
+    margin-bottom: 0;
 }
 
-#msa-tool-content .msa-checkbox input[type="checkbox"] {
+#msa-tool-container #msa-tool-content .msa-checkbox input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -315,25 +364,8 @@
     pointer-events: none;
 }
 
-#msa-tool-content .msa-checkbox span::before {
-    content: "";
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    margin-right: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-#msa-tool-content .msa-checkbox input[type="checkbox"]:checked + span::before {
-    border-color: #007bff;
-    background-color: #007bff;
-}
-
-#msa-tool-content .msa-checkbox span {
+#msa-tool-container #msa-tool-content .msa-checkbox span {
+    position: relative;
     user-select: none;
     color: #333;
     line-height: 20px;
@@ -342,15 +374,42 @@
     align-items: center;
 }
 
+#msa-tool-container #msa-tool-content .msa-checkbox span::before {
+    content: '\2713';
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
 
-#msa-tool-map .esri-component.esri-zoom.esri-widget {
+    font-weight: 700;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#msa-tool-container #msa-tool-content .msa-checkbox input[type="checkbox"]:checked + span::before {
+    border-color: #F47B20;
+    background-color: #F47B20;
+    /*color:#fff;*/
+
+}
+
+
+#msa-tool-container #msa-tool-map .esri-component.esri-zoom.esri-widget {
     row-gap: .7rem;
     background: none;
     border: none;
     box-shadow: unset;
 }
 
-.msa-options {
+#msa-tool-container .msa-options {
     margin: 0 !important;
     list-style: none;
     padding: 10px;
@@ -367,23 +426,23 @@
     z-index: 10;
 }
 
-.msa-options .msa-option {
+#msa-tool-container .msa-options .msa-option {
     padding: 5px 10px;
     cursor: pointer;
 }
 
-.msa-options .msa-option:hover {
+#msa-tool-container .msa-options .msa-option:hover {
     background-color: #0073aa;
     color: #fff;
 }
 
-.msa-options .msa-option.selected {
+#msa-tool-container .msa-options .msa-option.selected {
     background-color: #ccc;
     color: #666;
     pointer-events: none;
 }
 
-.msa-option.selected {
+#msa-tool-container .msa-option.selected {
     background-color: #0073aa;
     color: #fff;
     font-weight: bold;
@@ -394,55 +453,94 @@
 }
 
 
-#msa-toggle-all {
+#msa-tool-container #msa-toggle-all {
     font-weight: 700;
     color: #F47B20;
     cursor: pointer;
-    padding: 5px;
+    padding: 0 5px;
+    font-size: 14px;
 
 }
 
-#msa-toggle-all:hover {
+#msa-tool-container #msa-toggle-all:hover {
     color: inherit;
     transition: all .2s ease-out;
 }
 
-.msa-selected-items {
+#msa-tool-container .msa-selected-items {
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    padding-right: 150px;
+    /*padding-right: 150px;*/
 }
 
-.msa-add-location {
+#msa-tool-container .msa-add-location {
     padding: 5px 10px;
     border: 1px solid #F47B20 !important;
     color: #0073aa;
-    font-weight: bold;
+    margin-left: auto;
     border-radius: 3px;
     background-color: #F47B20 !important;
     cursor: pointer;
-    margin: 0;
     transition: background-color 0.3s, color 0.3s;
     pointer-events: none;
-    position: absolute;
-    right: 0;
-    top: 0;
-    /*transform: translateY(-50%);*/
+
+    order: 1;
     z-index: 1;
 }
 
-.msa-add-location:hover {
+#msa-tool-container .msa-add-location:hover {
     background-color: #0073aa;
     color: #fff;
     pointer-events: auto;
 }
 
-.msa-add-location.hidden {
-    background-color: #ccc !important;
+#msa-tool-container .msa-add-location.hidden {
+    /*background-color: #ccc !important;*/
+    display: none;
 }
 
 
-.hidden-row {
+#msa-tool-container .hidden-row {
     display: none;
+}
+
+#msa-tool-container .msa-view-hidden-fields.hidden-btn {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    #msa-tool-container #msa-tool-map {
+        width: 65%;
+    }
+
+    #msa-tool-container #msa-tool-location-selector {
+
+        width: 30%;
+    }
+}
+
+@media (max-width: 1100px) {
+    #msa-tool-container .msa-table td,
+    #msa-tool-container .msa-table th {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 767px) {
+    #msa-tool-container .msa-tool-control {
+        flex-direction: column;
+        row-gap: 2rem;
+    }
+
+    #msa-tool-container .msa-controls {
+        flex-direction: column;
+        row-gap: 1.5rem;
+        align-items: unset;
+
+    }
+
+    #msa-tool-container .msa-control-btns {
+        margin-left: auto;
+    }
 }

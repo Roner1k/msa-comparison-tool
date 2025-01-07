@@ -2,9 +2,17 @@ jQuery(document).ready(function ($) {
     console.log("MSA Tool Frontend script loaded");
 
     // Toggle categories
-    $(".msa-toggle-category").on("click", function () {
-        const categoryContent = $(this).closest(".msa-category").find(".msa-category-content");
-        categoryContent.toggle();
+     $(".msa-toggle-category").on("click", function () {
+        const $category = $(this).closest(".msa-category");
+        const $categoryContent = $category.find(".msa-category-content");
+
+         $categoryContent.slideToggle(300, function() {
+             if ($categoryContent.is(":visible")) {
+                $category.addClass("msa-toggle-open");
+            } else {
+                $category.removeClass("msa-toggle-open");
+            }
+        });
     });
 
     // "Toggle All" button
@@ -13,10 +21,12 @@ jQuery(document).ready(function ($) {
     $("#msa-toggle-all").on("click", function () {
         if (allExpanded) {
             $(".msa-category-content").slideUp();
+            $(".msa-category").removeClass("msa-toggle-open");
             allExpanded = false;
             $(this).text("Expand All");
         } else {
             $(".msa-category-content").slideDown();
+            $(".msa-category").addClass("msa-toggle-open");
             allExpanded = true;
             $(this).text("Collapse All");
         }
@@ -60,6 +70,7 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    /*
     // Hide rows
     $(".hide-row-btn").on("click", function () {
         const rowId = $(this).data("row-id");
@@ -70,14 +81,26 @@ jQuery(document).ready(function ($) {
         const category = $(this).closest(".msa-category");
         category.find(".hidden-row").removeClass("hidden-row");
     });
-
-/*
-    // Toggle subcategories
-    $('.table-row[data-has-subcategories="true"]').on("click", function () {
-        const rowId = $(this).data("row-id");
-        $(`.msa-subcategory-row[data-parent-row-id="${rowId}"]`).toggle();
-    });
     */
+    $(".hide-row-btn").on("click", function () {
+        const rowId = $(this).data("row-id");
+
+        $(`tr[data-row-id="${rowId}"]`).addClass("hidden-row");
+
+        const $category = $(this).closest(".msa-category");
+
+        $category.find(".msa-view-hidden-fields").removeClass("hidden-btn");
+    });
+
+    $(".msa-view-hidden-fields").on("click", function () {
+        const $category = $(this).closest(".msa-category");
+
+        $category.find(".hidden-row").removeClass("hidden-row");
+
+        $(this).addClass("hidden-btn");
+    });
+
+
 
     // Toggle subcategories
     $('.table-row[data-has-subcategories="true"]').on("click", function () {
@@ -105,8 +128,16 @@ jQuery(document).ready(function ($) {
         $("#msa-toggle-all").text("Collapse All");
 
         // Show all subcategories
-        $(".msa-subcategory-row").show();
-        $(".table-row[data-has-subcategories='true']").addClass("expanded");
+        // $(".msa-subcategory-row").show();
+        $(".msa-subcategory-row").not(function() {
+                const parentRowId = $(this).data("parent-row-id");
+                const $parentRow  = $(`.table-row[data-row-id="${parentRowId}"]`);
+
+                return $parentRow.hasClass("hidden-row");
+            }).show();
+
+        // $(".table-row[data-has-subcategories='true']").addClass("expanded");
+        $(".table-row[data-has-subcategories='true']:not(.hidden-row)").addClass("expanded");
 
 
     }

@@ -1,6 +1,6 @@
 <?php if (!empty($data)): ?>
     <div id="msa-tool-container">
-        <div class="msa-tool-map">
+        <div class="msa-tool-control">
             <!-- Map Section -->
             <div id="msa-tool-map">
                 <div id="viewDiv" style="width: 100%; height: 400px;"></div>
@@ -75,8 +75,9 @@
                     <!-- Category Header -->
                     <div class="msa-category-header">
                         <h3><?php echo esc_html($category); ?></h3>
-                        <button class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">Toggle
-                        </button>
+                        <span class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>"><span>&#10142;</span>
+
+                        </span>
                     </div>
                     <div class="msa-category-header msa-category-subheader">
                         <div class="msa-include">
@@ -170,6 +171,8 @@
                                             ?>
                                             <?php $subRowIndex = $rowIndex . '-sc-' . sanitize_title($subcatName); ?>
                                             <tr class="table-row msa-subcategory-row"
+                                                data-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $subRowIndex; ?>"
+
                                                 data-parent-row-id="row-<?php echo esc_attr($category); ?>-<?php echo $rowIndex; ?>"
                                                 style="display: none;">
                                                 <td>— <?php echo esc_html($subcatName); ?></td>
@@ -204,7 +207,7 @@
                             </table>
                         </div>
                         <div class="msa-show-all">
-                            <span class="msa-view-hidden-fields">View Hidden Fields</span>
+                            <span class="msa-view-hidden-fields hidden-btn">View Hidden Fields</span>
                         </div>
                     </div>
                 </div>
