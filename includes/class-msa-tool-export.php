@@ -11,8 +11,8 @@ class MSA_Custom_TCPDF extends TCPDF
         $logo_path = plugin_dir_path(__FILE__) . '../assets/img/orlandoedc_logo.png';
 
         // Original logo dimensions
-        $original_width = 333;
-        $original_height = 108;
+        $original_width = 783;
+        $original_height = 254;
 
         // New width for the logo (in mm)
         $new_width = 50;
@@ -20,24 +20,25 @@ class MSA_Custom_TCPDF extends TCPDF
         // Calculate proportional height
         $new_height = ($original_height / $original_width) * $new_width;
 
-        // Add the logo
-        if (file_exists($logo_path)) {
-            $this->Image($logo_path, 15, 10, $new_width, $new_height);
-        }
-
-        // Header text
-        $this->SetFont('helvetica', 'B', 22); // Font size
+        // Add the header text
+        $this->SetFont('arialbmt', '', 22); // Font size
         $this->SetTextColor(244, 123, 32); // Orange color (#F47B20)
-        $this->SetXY(10 + $new_width + 20, 10 + ($new_height / 2) - 5); // Align text with logo
-        $this->Cell(0, 0, 'HOW ORLANDO COMPARES?', 0, 0, 'L');
+        $this->SetXY(15, 15); // Position text at the top-left corner
+        $this->Cell(0, 0, 'HOW ORLANDO COMPARES', 0, 0, 'L');
+
+        // Add the logo aligned to the right
+        if (file_exists($logo_path)) {
+            $this->Image($logo_path, $this->getPageWidth() - $new_width - 15, 10, $new_width, $new_height);
+        }
     }
+
 
     public function Footer()
     {
         // Position the footer 15mm from the bottom
         $this->SetY(-15);
         // Set the font
-        $this->SetFont('helvetica', 'I', 8);
+        $this->SetFont('arialmt', '', 8);
         // Set text color
         $this->SetTextColor(128, 128, 128);
         // Add page numbering
@@ -68,7 +69,7 @@ class MSA_Tool_Export
             $pdf->AddPage();
 
             foreach ($categories as $category) {
-                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->SetFont('arialbmt', '', 14);
                 $pdf->SetTextColor(244, 123, 32);
                 $pdf->Cell(0, 10, $category['name'], 0, 1, 'L');
                 $pdf->Ln(5);
@@ -108,9 +109,9 @@ class MSA_Tool_Export
                             $combinedValue = $rank ? "$value ($rank)" : $value;
 
                             if ($colIndex === 1) {
-                                $html .= '<td style="font-size: 9px; background-color: rgb(244, 123, 32); color: white; text-align: right; padding: 4px; font-weight: normal;">' . $combinedValue . '</td>';
+                                $html .= '<td style="font-size: 9px; background-color: rgb(244, 123, 32); color: white; text-align: right; padding: 4px; font-family: arialmt;">' . $combinedValue . '</td>';
                             } else {
-                                $html .= '<td style="font-size: 9px; color: black; text-align: right; padding: 4px; font-weight: normal;">' . $combinedValue . '</td>';
+                                $html .= '<td style="font-size: 9px; color: black; text-align: right; padding: 4px; font-family: arialmt;">' . $combinedValue . '</td>';
                             }
                         }
                         $html .= '</tr>';
@@ -142,7 +143,7 @@ class MSA_Tool_Export
 
             if (!empty($additional_info)) {
                 $pdf->AddPage();
-                $pdf->SetFont('helvetica', '', 12);
+                $pdf->SetFont('arialmt', '', 12);
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->writeHTML($additional_info, true, false, true, false, '');
             }

@@ -52,8 +52,10 @@ class MSA_Tool_Shortcode
         // Localize data for frontend scripts
         wp_localize_script('msa-tool-frontend-map', 'msaMapData', [
             'regions' => $map_data,
-            'portalItemId' => '5c0c0595be9c422bb95ace1bc48f610e',
-            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_view/FeatureServer',
+//            'portalItemId' => '5c0c0595be9c422bb95ace1bc48f610e',
+            'portalItemId' => 'efbd8b0edf594458a01deb40ae98d8ac',
+//            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_2023_us_cbsa_view/FeatureServer',
+            'featureLayerUrl' => 'https://services2.arcgis.com/3KQnhNHIDCtyRpO4/arcgis/rest/services/tl_msa_2023/FeatureServer/',
             'activeRegions' => ['orlando-fl']
         ]);
 

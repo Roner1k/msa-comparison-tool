@@ -31,8 +31,8 @@ jQuery(document).ready(function ($) {
         const view = new MapView({
             container: "viewDiv",
             map: webMap,
-            zoom: 4,
-            center: [-100, 35]
+            zoom: 3,
+            center: [-100, 39]
         });
 
         const featureLayer = new FeatureLayer({
@@ -90,14 +90,14 @@ jQuery(document).ready(function ($) {
                     graphic.symbol = {
                         type: "simple-fill",
                         color: [255, 165, 0, 0.8], // Orange
-                        outline: {color: [255, 165, 0], width: 2}
+                        outline: {color: [0, 0, 0], width: 1}
                     };
                 } else {
                     // Blue for not selected
                     graphic.symbol = {
                         type: "simple-fill",
-                        color: [0, 0, 255, 0.3],
-                        outline: {color: [0, 0, 255], width: 1}
+                        color: [245, 222, 179, 0.5],
+                        outline: {color: [100, 100, 100], width: 1}
                     };
                 }
             }
