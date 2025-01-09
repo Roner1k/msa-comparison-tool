@@ -16,7 +16,7 @@ jQuery(document).ready(function ($) {
     });
 
     // "Toggle All" button
-    let allExpanded = false; // State of all accordions
+    let allExpanded = true; // State of all accordions
 
     $("#msa-toggle-all").on("click", function () {
         if (allExpanded) {

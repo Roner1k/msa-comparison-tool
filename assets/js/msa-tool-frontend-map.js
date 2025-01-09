@@ -233,7 +233,7 @@ jQuery(document).ready(function ($) {
         view.when(() => {
             updateTableColumns();
             renderBaseRegions();
-            $("#msa-tool-content .msa-category").first().find(".msa-toggle-category").click();
+            $("#msa-tool-content .msa-category").find(".msa-toggle-category").click();
 
         });
     });

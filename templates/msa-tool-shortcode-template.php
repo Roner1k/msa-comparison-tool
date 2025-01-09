@@ -55,7 +55,7 @@
                         </label>
                     </div>
                     <div class="msa-toggle-all-container">
-                        <span id="msa-toggle-all">Toggle All</span>
+                        <span id="msa-toggle-all">Collapse All</span>
                     </div>
 
                 </div>
@@ -128,7 +128,10 @@
                                         data-has-subcategories="<?php echo $hasSubcategories ? 'true' : 'false'; ?>">
                                         <td><?php echo esc_html($indicator); ?></td>
 
-                                        <?php foreach ($data['regions'] as $region_name => $region_data): ?>
+                                        <?php
+//                                        error_log(print_r($region_data['categories'][$category], true));
+
+                                        foreach ($data['regions'] as $region_name => $region_data): ?>
                                             <?php
                                             $val = $region_data['categories'][$category][$indicator]['value'] ?? '-';
                                             $rank = $region_data['categories'][$category][$indicator]['rank'] ?? '-';
