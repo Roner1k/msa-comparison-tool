@@ -74,21 +74,27 @@
     margin: 0;
 }
 
-#msa-tool-container .msa-toggle-category span {
-    transform: rotateZ(-90deg);
-    display: block;
-    transition: all .1s ease-out;
+
+#msa-tool-container .msa-category.msa-toggle-open .msa-toggle-category span {
+    /*transform: rotateZ(90deg)*/
 
 }
 
-#msa-tool-container .msa-category.msa-toggle-open .msa-toggle-category span {
-    transform: rotateZ(90deg)
+#msa-tool-container .msa-category:not(.msa-toggle-open) .msa-toggle-category .msa-collapse {
+    display: none;
 
+}
+
+#msa-tool-container .msa-category.msa-toggle-open .msa-toggle-category .msa-expand {
+    display: none;
 }
 
 
 #msa-tool-container .msa-category-header .msa-toggle-category {
     font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
     font-weight: 700;
 }
 
@@ -431,9 +437,19 @@
     cursor: pointer;
 }
 
+
 #msa-tool-container .msa-options .msa-option:hover {
     background-color: #0073aa;
     color: #fff;
+}
+
+#msa-tool-container .msa-options .msa-option[data-slug="orlando-fl"] {
+    color: #f47b20;
+    font-weight: 700;
+    pointer-events: none;
+    background-color: #ccc;
+
+
 }
 
 #msa-tool-container .msa-options .msa-option.selected {
@@ -452,13 +468,14 @@
     display: none !important;
 }
 
-
+#msa-tool-container .msa-category .msa-toggle-category span,
 #msa-tool-container #msa-toggle-all {
     font-weight: 700;
     color: #F47B20;
     cursor: pointer;
     padding: 0 5px;
     font-size: 14px;
+    user-select: none;
 
 }
 
@@ -544,3 +561,23 @@
         margin-left: auto;
     }
 }
+
+/* temp */
+.page-id-17784 #content > .banner {
+    display: none;
+}
+
+.page-id-17784 #content h1 {
+    margin-top: 0;
+}
+
+.page-id-17784 .msa-align-text-right {
+    margin-left: auto;
+    max-width: 35%;
+    width: 220px;
+
+}
+
+.page-id-17784 .msa-align-text-right img {
+}
+

@@ -48,10 +48,19 @@ jQuery(document).ready(function ($) {
 
     // Open/close the dropdown menu
     customSelect.on("click", function (e) {
+        // Check if there are 5 or more selected items
+        const selectedItemsCount = $(".msa-selected-item").length;
+        if (selectedItemsCount >= 5) {
+            // Prevent opening the dropdown
+            alert("You can select up to 5 additional locations.");
+            return;
+        }
+
         if (!$(e.target).hasClass("msa-selected-item") && e.target !== searchInput[0]) {
             customSelect.find(".msa-options").toggle();
         }
     });
+
 
     // Close the menu when clicking outside
     $(document).on("click", function (e) {

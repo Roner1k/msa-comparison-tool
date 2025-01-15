@@ -75,7 +75,9 @@
                     <!-- Category Header -->
                     <div class="msa-category-header">
                         <h3><?php echo esc_html($category); ?></h3>
-                        <span class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>"><span>&#10142;</span>
+                        <span class="msa-toggle-category" data-category="<?php echo esc_attr($category); ?>">
+                            <span class="msa-collapse">Collapse</span>
+                            <span class="msa-expand">Expand</span>
 
                         </span>
                     </div>

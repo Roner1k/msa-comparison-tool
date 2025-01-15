@@ -11,8 +11,8 @@ class MSA_Custom_TCPDF extends TCPDF
         $logo_path = plugin_dir_path(__FILE__) . '../assets/img/orlandoedc_logo.png';
 
         // Original logo dimensions
-        $original_width = 783;
-        $original_height = 254;
+        $original_width = 1200;
+        $original_height = 388;
 
         // New width for the logo (in mm)
         $new_width = 50;
@@ -28,7 +28,7 @@ class MSA_Custom_TCPDF extends TCPDF
 
         // Add the logo aligned to the right
         if (file_exists($logo_path)) {
-            $this->Image($logo_path, $this->getPageWidth() - $new_width - 15, 10, $new_width, $new_height);
+            $this->Image($logo_path, $this->getPageWidth() - $new_width - 15, 12, $new_width, $new_height);
         }
     }
 
