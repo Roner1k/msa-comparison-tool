@@ -175,7 +175,7 @@ class MSA_Tool_Export
      * @param array $categories The content for the Excel file.
      * @return string|null URL of the file or null in case of an error.
      */
-
+/*
     public static function generate_excel($categories)
     {
         try {
@@ -248,6 +248,108 @@ class MSA_Tool_Export
             return null;
         }
     }
+*/
+    public static function generate_excel($categories)
+    {
+        try {
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('MSA Comparison');
+
+            // Set headers
+            $sheet->setCellValue('A1', 'Category');
+            $sheet->setCellValue('B1', 'Indicator / Subcategory');
+
+            $column = 'C';
+
+            if (!empty($categories[0]['headers'][0])) {
+                $headers = $categories[0]['headers'][0];
+                $headers = array_filter($headers);
+                $headers = array_values($headers);
+
+                for ($i = 0; $i < count($headers); $i++) {
+                    if (strtolower($headers[$i]) === 'rank') {
+                        $sheet->setCellValue("{$column}1", 'Rank');
+                        $column++;
+                        continue;
+                    }
+
+                    $sheet->setCellValue("{$column}1", $headers[$i]);
+                    $column++;
+                }
+            }
+
+            $row = 2;
+            foreach ($categories as $category) {
+                foreach ($category['rows'] as $dataRow) {
+                    $sheet->setCellValue("A{$row}", $category['name']);
+                    $sheet->setCellValue("B{$row}", $dataRow[0]);
+
+                    $col = 'C';
+
+                    for ($i = 1; $i < count($dataRow); $i++) {
+                        $value = $dataRow[$i];
+                        $sheet->setCellValue("{$col}{$row}", $value);
+                        $col++;
+                    }
+                    $row++;
+                }
+            }
+
+            // Add two empty rows before additional information
+            $row += 2;
+
+            // Add additional information below the data
+            $additional_info = '';
+            if (is_multisite()) {
+                $global_blog_id = get_site_option('msa_tool_global_data', null);
+                if ($global_blog_id) {
+                    switch_to_blog($global_blog_id);
+                    $additional_info = get_option('msa_tool_export_info', '');
+                    restore_current_blog();
+                } else {
+                    $additional_info = get_option('msa_tool_export_info', '');
+                }
+            } else {
+                $additional_info = get_option('msa_tool_export_info', '');
+            }
+
+            if (!empty($additional_info)) {
+                $sheet->setCellValue("A{$row}", 'Additional Information:');
+                $sheet->mergeCells("A{$row}:Z{$row}");
+                $sheet->getStyle("A{$row}")->getFont()->setBold(true);
+                $row++;
+
+                $lines = explode("\n", strip_tags($additional_info));
+                foreach ($lines as $line) {
+                    $sheet->setCellValue("A{$row}", $line);
+                    $sheet->mergeCells("A{$row}:Z{$row}");
+                    $row++;
+                }
+            }
+
+            // Save the Excel file
+            $timestamp = time();
+            $upload_dir = wp_upload_dir();
+            $base_dir = $upload_dir['basedir'] . '/msa-tool/exports';
+            $base_url = $upload_dir['baseurl'] . '/msa-tool/exports';
+            $filename = "Orlando-MSA-Comparison-{$timestamp}.xlsx";
+
+            if (!file_exists($base_dir)) {
+                wp_mkdir_p($base_dir);
+            }
+
+            $output_path = "{$base_dir}/{$filename}";
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($output_path);
+
+            return "{$base_url}/{$filename}";
+        } catch (Exception $e) {
+            error_log("[EXCEL EXPORT ERROR] " . $e->getMessage());
+            return null;
+        }
+    }
+
 
 
 

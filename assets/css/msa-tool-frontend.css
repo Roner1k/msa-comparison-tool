@@ -573,11 +573,23 @@
 
 .page-id-17784 .msa-align-text-right {
     margin-left: auto;
-    max-width: 35%;
-    width: 220px;
+    max-width: 25%;
+    width: 260px;
+    margin-top: auto;
 
 }
 
-.page-id-17784 .msa-align-text-right img {
+
+@media (min-width: 768px) {
+    .page-id-17784 .msa-left-text {
+        max-width: 70%;
+
+    }
+}
+
+@media (max-width: 767px) {
+    .page-id-17784 .msa-align-text-right {
+        max-width: 35%;
+    }
 }
 
