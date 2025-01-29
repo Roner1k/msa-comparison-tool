@@ -336,6 +336,42 @@
     justify-content: flex-end;
 }
 
+#msa-tool-container #msa-tool-map {
+    position: relative;
+}
+
+#msa-tool-container #msa-tool-map .esri-ui-inner-container.esri-ui-manual-container {
+    display: none !important;
+}
+
+#msa-tool-container #msa-tool-map #map-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5); /* полупрозрачный фон */
+    z-index: 9999; /* повыше карты */
+}
+
+#msa-tool-container #msa-tool-map #map-loader .loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid orange;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
 
 #msa-tool-container #msa-tool-map .esri-view-surface.esri-view-surface--touch-none:after {
     content: unset !important;
@@ -563,14 +599,17 @@
 }
 
 /* temp */
+.page-id-14414 #content > .banner,
 .page-id-17784 #content > .banner {
     display: none;
 }
 
+.page-id-14414 #content h1,
 .page-id-17784 #content h1 {
-    margin-top: 0;
+    /*margin-top: 0;*/
 }
 
+.page-id-14414 .msa-align-text-right,
 .page-id-17784 .msa-align-text-right {
     margin-left: auto;
     max-width: 25%;
@@ -581,6 +620,7 @@
 
 
 @media (min-width: 768px) {
+    .page-id-14414 .msa-left-text,
     .page-id-17784 .msa-left-text {
         max-width: 70%;
 
@@ -588,6 +628,7 @@
 }
 
 @media (max-width: 767px) {
+    .page-id-14414 .msa-align-text-right,
     .page-id-17784 .msa-align-text-right {
         max-width: 35%;
     }

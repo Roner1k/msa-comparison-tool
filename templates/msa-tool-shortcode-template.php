@@ -4,6 +4,11 @@
             <!-- Map Section -->
             <div id="msa-tool-map">
                 <div id="viewDiv" style="width: 100%; height: 400px;"></div>
+                <div id="map-loader" style="display: none;">
+                    <div class="loader"></div>
+
+                </div>
+
             </div>
 
             <!-- Location Selector -->
@@ -33,8 +38,6 @@
         </div>
         <!-- Table Section -->
         <div id="msa-tool-content">
-            <!-- Include Rank Checkbox -->
-
 
             <div class="msa-controls">
                 <!-- Download Buttons -->
@@ -42,7 +45,7 @@
                     <h4>Download Report</h4>
                     <div class="msa-buttons">
                         <button id="export-pdf">Export to PDF</button>
-                        <button id="export-xlsx">Export to XLSX</button>
+                        <!--<button id="export-xlsx">Export to XLSX</button>-->
                     </div>
                 </div>
 
@@ -51,7 +54,7 @@
                     <div class="msa-rank-toggle">
                         <label class="msa-checkbox">
                             <input type="checkbox" id="msa-include-rank">
-                            <span>Include Rank</span>
+                            <span>Top 30 MSA Rank</span>
                         </label>
                     </div>
                     <div class="msa-toggle-all-container">
@@ -131,7 +134,7 @@
                                         <td><?php echo esc_html($indicator); ?></td>
 
                                         <?php
-//                                        error_log(print_r($region_data['categories'][$category], true));
+                                        //                                        error_log(print_r($region_data['categories'][$category], true));
 
                                         foreach ($data['regions'] as $region_name => $region_data): ?>
                                             <?php

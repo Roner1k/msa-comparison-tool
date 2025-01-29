@@ -1,4 +1,3 @@
-
 // This version ensures that Orlando (orlando-fl) is always active and cannot be removed.
 // Orlando does not count towards the 5-region limit. The user can select up to 5 additional regions besides Orlando.
 //
@@ -63,10 +62,14 @@ jQuery(document).ready(function ($) {
                         geometry: feature.geometry,
                         symbol: {
                             type: "simple-fill",
-                            color: [0, 0, 255, 0.3], // Blue by default
+                            color: [0, 0, 255, 0.3],
                             outline: {color: [0, 0, 255], width: 1}
+                        },
+                        attributes: {
+                            mapId: mapIdStr
                         }
                     });
+
 
                     graphicsLayer.add(graphic);
                     allRegionsGraphics[mapIdStr] = graphic;
@@ -183,50 +186,58 @@ jQuery(document).ready(function ($) {
             updateSelector(regionSlug, mapId, !isSelected);
         });
 
+        // view.on("click", async function (event) {
+        //     const query = featureLayer.createQuery();
+        //     query.geometry = event.mapPoint;
+        //     query.returnGeometry = false;
+        //     query.outFields = ["*"];
+        //
+        //     try {
+        //         const result = await featureLayer.queryFeatures(query);
+        //         if (result.features.length > 0) {
+        //             const mapId = String(result.features[0].attributes.CBSAFP);
+        //             const region = msaMapData.regions.find(r => String(r.map_id) === mapId);
+        //
+        //             if (region) {
+        //                 const regionSlug = region.region_slug;
+        //
+        //                 // Check if region is Orlando
+        //                 if (regionSlug === alwaysActiveRegion) {
+        //                     // Since Orlando can't be removed or toggled off, do nothing if already selected.
+        //                     if (!selectedRegions.includes(alwaysActiveRegion)) {
+        //                         // Shouldn't happen since we initialize with Orlando anyway.
+        //                         selectedRegions.push(alwaysActiveRegion);
+        //                         updateTableColumns();
+        //                     }
+        //                     // Just update colors (it should already be orange)
+        //                     const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
+        //                     updateRegionsColors(activeMapIds);
+        //                     return;
+        //                 }
+        //
+        //                 // Check max if trying to add
+        //                 if (!selectedRegions.includes(regionSlug)) {
+        //                     const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+        //                     if (otherSelectedCount >= maxRegions) {
+        //                         alert("You can select up to 5 additional locations.");
+        //                         return;
+        //                     }
+        //                 }
+        //
+        //                 updateSelector(regionSlug, mapId, !selectedRegions.includes(regionSlug));
+        //             }
+        //         }
+        //     } catch (error) {
+        //         console.error("Error querying map region:", error);
+        //     }
+        // });
 
-        view.on("click", async function (event) {
-            const query = featureLayer.createQuery();
-            query.geometry = event.mapPoint;
-            query.returnGeometry = false;
-            query.outFields = ["*"];
-
-            try {
-                const result = await featureLayer.queryFeatures(query);
-                if (result.features.length > 0) {
-                    const mapId = String(result.features[0].attributes.CBSAFP);
-                    const region = msaMapData.regions.find(r => String(r.map_id) === mapId);
-
-                    if (region) {
-                        const regionSlug = region.region_slug;
-
-                        // Check if region is Orlando
-                        if (regionSlug === alwaysActiveRegion) {
-                            // Since Orlando can't be removed or toggled off, do nothing if already selected.
-                            if (!selectedRegions.includes(alwaysActiveRegion)) {
-                                // Shouldn't happen since we initialize with Orlando anyway.
-                                selectedRegions.push(alwaysActiveRegion);
-                                updateTableColumns();
-                            }
-                            // Just update colors (it should already be orange)
-                            const activeMapIds = selectedRegions.map(slug => String($(`.msa-option[data-slug="${slug}"]`).data("map-id")));
-                            updateRegionsColors(activeMapIds);
-                            return;
-                        }
-
-                        // Check max if trying to add
-                        if (!selectedRegions.includes(regionSlug)) {
-                            const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
-                            if (otherSelectedCount >= maxRegions) {
-                                alert("You can select up to 5 additional locations.");
-                                return;
-                            }
-                        }
-
-                        updateSelector(regionSlug, mapId, !selectedRegions.includes(regionSlug));
-                    }
-                }
-            } catch (error) {
-                console.error("Error querying map region:", error);
+        view.on("pointer-move", async (event) => {
+            const response = await view.hitTest(event);
+            if (response.results.some(r => r.graphic && r.graphic.layer === graphicsLayer)) {
+                view.container.style.cursor = "pointer";
+            } else {
+                view.container.style.cursor = "default";
             }
         });
 
@@ -234,7 +245,54 @@ jQuery(document).ready(function ($) {
             updateTableColumns();
             renderBaseRegions();
             $("#msa-tool-content .msa-category").find(".msa-toggle-category").click();
+            $("#msa-include-rank").click();
+
+            view.on("click", async function (event) {
+                $("#map-loader").show();
+
+                try {
+                    const response = await view.hitTest(event);
+
+                    if (response.results.length > 0) {
+                        const hit = response.results.find(r => r.graphic && r.graphic.layer === graphicsLayer);
+                        if (hit) {
+                            const mapId = hit.graphic.attributes.mapId;
+                            const region = msaMapData.regions.find(r => String(r.map_id) === mapId);
+
+                            if (region) {
+                                const regionSlug = region.region_slug;
+                                if (regionSlug === alwaysActiveRegion) {
+                                    if (!selectedRegions.includes(alwaysActiveRegion)) {
+                                        selectedRegions.push(alwaysActiveRegion);
+                                        updateTableColumns();
+                                    }
+                                    const activeMapIds = selectedRegions.map(slug =>
+                                        String($(`.msa-option[data-slug="${slug}"]`).data("map-id"))
+                                    );
+                                    updateRegionsColors(activeMapIds);
+                                    return;
+                                }
+
+                                if (!selectedRegions.includes(regionSlug)) {
+                                    const otherSelectedCount = selectedRegions.filter(r => r !== alwaysActiveRegion).length;
+                                    if (otherSelectedCount >= maxRegions) {
+                                        alert("You can select up to 5 additional locations.");
+                                        return;
+                                    }
+                                }
+                                updateSelector(regionSlug, mapId, !selectedRegions.includes(regionSlug));
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error on hitTest:", error);
+                } finally {
+                    $("#map-loader").hide();
+                }
+            });
 
         });
+
+
     });
 });
