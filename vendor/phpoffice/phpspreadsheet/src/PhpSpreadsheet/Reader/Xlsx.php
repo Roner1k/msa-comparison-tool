@@ -27,7 +27,6 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx\Theme;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx\WorkbookView;
 use PhpOffice\PhpSpreadsheet\ReferenceHelper;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
-use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Shared\Drawing;
 use PhpOffice\PhpSpreadsheet\Shared\File;
@@ -123,7 +122,7 @@ class Xlsx extends BaseReader
         $rels = @simplexml_load_string(
             $this->getSecurityScannerOrThrow()->scan($contents),
             'SimpleXMLElement',
-            Settings::getLibXmlLoaderOptions(),
+            0,
             $ns
         );
 
@@ -138,7 +137,7 @@ class Xlsx extends BaseReader
         $rels = simplexml_load_string(
             $this->getSecurityScannerOrThrow()->scan($contents),
             'SimpleXMLElement',
-            Settings::getLibXmlLoaderOptions(),
+            0,
             ($ns === '' ? $ns : '')
         );
 
@@ -245,11 +244,13 @@ class Xlsx extends BaseReader
 
                         $xml = new XMLReader();
                         $xml->xml(
-                            $this->getSecurityScannerOrThrow()->scan(
-                                $this->getFromZipArchive($this->zip, $fileWorksheetPath)
-                            ),
-                            null,
-                            Settings::getLibXmlLoaderOptions()
+                            $this->getSecurityScannerOrThrow()
+                                ->scan(
+                                    $this->getFromZipArchive(
+                                        $this->zip,
+                                        $fileWorksheetPath
+                                    )
+                                )
                         );
                         $xml->setParserProperty(2, true);
 
@@ -853,6 +854,8 @@ class Xlsx extends BaseReader
                                         }
 
                                         // Read cell!
+                                        $useFormula = isset($c->f)
+                                            && ((string) $c->f !== '' || (isset($c->f->attributes()['t']) && strtolower((string) $c->f->attributes()['t']) === 'shared'));
                                         switch ($cellDataType) {
                                             case DataType::TYPE_STRING:
                                                 if ((string) $c->v != '') {
@@ -867,7 +870,7 @@ class Xlsx extends BaseReader
 
                                                 break;
                                             case DataType::TYPE_BOOL:
-                                                if (!isset($c->f) || ((string) $c->f) === '') {
+                                                if (!$useFormula) {
                                                     if (isset($c->v)) {
                                                         $value = self::castToBoolean($c);
                                                     } else {
@@ -882,16 +885,16 @@ class Xlsx extends BaseReader
 
                                                 break;
                                             case DataType::TYPE_STRING2:
-                                                if (isset($c->f)) {
+                                                if ($useFormula) {
                                                     $this->castToFormula($c, $r, $cellDataType, $value, $calculatedValue, 'castToString');
                                                     self::storeFormulaAttributes($c->f, $docSheet, $r);
                                                 } else {
-                                                     $value = self::castToString($c);
+                                                    $value = self::castToString($c);
                                                 }
 
                                                 break;
                                             case DataType::TYPE_INLINE:
-                                                if (isset($c->f)) {
+                                                if ($useFormula) {
                                                     $this->castToFormula($c, $r, $cellDataType, $value, $calculatedValue, 'castToError');
                                                     self::storeFormulaAttributes($c->f, $docSheet, $r);
                                                 } else {
@@ -900,7 +903,7 @@ class Xlsx extends BaseReader
 
                                                 break;
                                             case DataType::TYPE_ERROR:
-                                                if (!isset($c->f)) {
+                                                if (!$useFormula) {
                                                     $value = self::castToError($c);
                                                 } else {
                                                     // Formula
@@ -915,7 +918,7 @@ class Xlsx extends BaseReader
 
                                                 break;
                                             default:
-                                                if (!isset($c->f)) {
+                                                if (!$useFormula) {
                                                     $value = self::castToString($c);
                                                     if (is_numeric($value)) {
                                                         $value += 0;
@@ -2001,9 +2004,8 @@ class Xlsx extends BaseReader
         if ($dataRels) {
             // exists and not empty if the ribbon have some pictures (other than internal MSO)
             $UIRels = simplexml_load_string(
-                $this->getSecurityScannerOrThrow()->scan($dataRels),
-                'SimpleXMLElement',
-                Settings::getLibXmlLoaderOptions()
+                $this->getSecurityScannerOrThrow()
+                    ->scan($dataRels)
             );
             if (false !== $UIRels) {
                 // we need to save id and target to avoid parsing customUI.xml and "guess" if it's a pseudo callback who load the image
