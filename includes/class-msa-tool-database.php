@@ -8,13 +8,13 @@ class MSA_Tool_Database
 
         // Define table names
         $data_table = $wpdb->get_blog_prefix() . 'msa_tool_data';
-        $map_table  = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
+        $map_table = $wpdb->get_blog_prefix() . 'msa_tool_map_keys';
 
         // Check global mode
         $global_blog_id = get_site_option('msa_tool_global_data', 0);
         if ($global_blog_id && $global_blog_id !== get_current_blog_id()) {
             $data_table = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_data';
-            $map_table  = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_map_keys';
+            $map_table = $wpdb->get_blog_prefix($global_blog_id) . 'msa_tool_map_keys';
         }
 
         // Verify table existence
@@ -54,17 +54,17 @@ class MSA_Tool_Database
         // Initialize grouped data structure
         $grouped_data = [
             'categories' => [], // List of categories
-            'regions'    => [], // List of regions with their data
+            'regions' => [], // List of regions with their data
         ];
 
         foreach ($all_data as $row) {
-            $category    = isset($row['category'])    ? trim($row['category'])    : 'Unknown Category';
+            $category = isset($row['category']) ? trim($row['category']) : 'Unknown Category';
             $subcategory = isset($row['subcategory']) ? trim($row['subcategory']) : '';
-            $indicator   = isset($row['indicator'])   ? trim($row['indicator'])   : 'Unknown Indicator';
-            $region      = isset($row['region'])      ? trim($row['region'])      : 'Unknown Region';
-            $slug        = isset($row['slug'])        ? trim($row['slug'])        : sanitize_title($region);
-            $value       = isset($row['value'])       ? $row['value']             : 0;
-            $map_id      = $row['map_id'] ?? null;
+            $indicator = isset($row['indicator']) ? trim($row['indicator']) : 'Unknown Indicator';
+            $region = isset($row['region']) ? trim($row['region']) : 'Unknown Region';
+            $slug = isset($row['slug']) ? trim($row['slug']) : sanitize_title($region);
+            $value = isset($row['value']) ? $row['value'] : 0;
+            $map_id = $row['map_id'] ?? null;
 
             // Group by categories (top level)
             if (!isset($grouped_data['categories'][$category])) {
@@ -77,8 +77,8 @@ class MSA_Tool_Database
             // Group by regions
             if (!isset($grouped_data['regions'][$region])) {
                 $grouped_data['regions'][$region] = [
-                    'slug'       => $slug,
-                    'map_id'     => $map_id,
+                    'slug' => $slug,
+                    'map_id' => $map_id,
                     'categories' => [],
                 ];
             }
@@ -88,16 +88,22 @@ class MSA_Tool_Database
             }
 
             // Handle "Rank" indicators
-            if (strpos($indicator, 'Rank') !== false) {
-                $clean_indicator = str_replace(' Rank', '', $indicator);
-                if (!empty($subcategory)) {
+            if (preg_match('/\s[Rr]ank$/', $indicator)) { // Если индикатор заканчивается на " Rank"
+                $clean_indicator = preg_replace('/\s[Rr]ank$/', '', $indicator); // Убираем " Rank"
 
-                     $grouped_data['regions'][$region]['categories'][$category][$clean_indicator]['subcategories'][$subcategory]['rank'] = $value;
+                if (!empty($subcategory)) {
+                    $grouped_data['regions'][$region]['categories'][$category][$clean_indicator]['subcategories'][$subcategory]['rank'] = $value;
                 } else {
-                     $grouped_data['regions'][$region]['categories'][$category][$clean_indicator]['rank'] = $value;
+                    if (!isset($grouped_data['regions'][$region]['categories'][$category][$clean_indicator])) {
+                        $grouped_data['regions'][$region]['categories'][$category][$clean_indicator] = [
+                            'value' => null,
+                            'subcategories' => [],
+                        ];
+                    }
+
+                    $grouped_data['regions'][$region]['categories'][$category][$clean_indicator]['rank'] = $value;
                 }
             } else {
-                // Process regular indicators
                 if (!isset($grouped_data['regions'][$region]['categories'][$category][$indicator])) {
                     $grouped_data['regions'][$region]['categories'][$category][$indicator] = [
                         'value' => null,
@@ -111,14 +117,13 @@ class MSA_Tool_Database
                     $grouped_data['regions'][$region]['categories'][$category][$indicator]['subcategories'][$subcategory] = $value;
                 }
             }
+
         }
 
-        error_log('reg data' . print_r($grouped_data, true));
+        //error_log('reg data' . print_r($grouped_data, true));
 
         return $grouped_data;
     }
-
-
 
 
     public static function get_map_data()

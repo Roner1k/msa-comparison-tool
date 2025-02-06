@@ -14,7 +14,7 @@ class MSA_Tool_Ajax
 
     public static function export_pdf()
     {
-        error_log("[AJAX EXPORT PDF] Starting export process...");
+//        error_log("[AJAX EXPORT PDF] Starting export process...");
 
         self::include_pdf_library();
         self::clean_up_exports('pdf');
@@ -40,7 +40,7 @@ class MSA_Tool_Ajax
 
     public static function export_excel()
     {
-        error_log("[AJAX EXPORT EXCEL] Starting export process...");
+//        error_log("[AJAX EXPORT EXCEL] Starting export process...");
 
         self::include_excel_library();
         self::clean_up_exports('xlsx');

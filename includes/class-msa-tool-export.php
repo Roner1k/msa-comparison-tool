@@ -95,7 +95,6 @@ class MSA_Tool_Export
                 }
 
 
-
                 if (!empty($category['rows'])) {
                     foreach ($category['rows'] as $rowIndex => $row) {
                         $rowColor = ($rowIndex % 2 === 0) ? 'background-color: #F5F5F5;' : 'background-color: #FFFFFF;';
@@ -117,9 +116,6 @@ class MSA_Tool_Export
                         $html .= '</tr>';
                     }
                 }
-
-
-
 
 
                 $html .= '</table>';
@@ -145,7 +141,54 @@ class MSA_Tool_Export
                 $pdf->AddPage();
                 $pdf->SetFont('arialmt', '', 12);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->writeHTML($additional_info, true, false, true, false, '');
+                $css = <<<EOD
+<style>
+    .add-info h2 {
+        font-size: 20px;
+        font-family: arialbmt;
+        line-height: 1;
+        text-transform: uppercase;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        color: #F47B20;
+        width: 100%;
+    text-decoration: underline #808080;
+    text-decoration-thickness: 1px;
+
+    }
+    
+    .add-info h3 {
+        font-size: 14px;
+        font-family: arialbmt;
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #000;
+    }
+    .add-info p,
+    .add-info div {
+        font-size: 11px;
+        font-family: arialmt;
+        margin-bottom: 0;
+        color: #808080;
+    }
+    .add-info div {        
+        margin-bottom: 0;  
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    .add-info a {
+        font-size: 11px;
+        color: #808080;
+        text-decoration: underline;
+    }
+</style>
+EOD;
+                $additional_info = str_replace('<a ', '<br><a ', $additional_info);
+                $additional_info = '<div class="add-info">' . $additional_info . '</div>';
+                $pdf->writeHTML($css . $additional_info, true, false, true, false, '');
+
+                //    error_log("[PDF EXPORT] Additional Info HTML:\n" . print_r($additional_info, true)); // Логируем HTML
+//                $pdf->writeHTML($additional_info, true, false, true, false, '');
             }
 
             $timestamp = time();
@@ -175,80 +218,7 @@ class MSA_Tool_Export
      * @param array $categories The content for the Excel file.
      * @return string|null URL of the file or null in case of an error.
      */
-/*
-    public static function generate_excel($categories)
-    {
-        try {
-//            error_log("[MSA EXPORT] Categories structure:\n" . print_r($categories, true));
 
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-            $sheet->setTitle('MSA Comparison');
-
-            $sheet->setCellValue('A1', 'Category');
-            $sheet->setCellValue('B1', 'Indicator / Subcategory');
-
-            $column = 'C';
-
-            if (!empty($categories[0]['headers'][0])) {
-
-                $headers = $categories[0]['headers'][0];
-                 $headers = array_filter($headers);
-                $headers = array_values($headers);
-
-                 for ($i = 0; $i < count($headers); $i++) {
-                     if (strtolower($headers[$i]) === 'rank') {
-
-                        $sheet->setCellValue("{$column}1", 'Rank');
-                        $column++;
-                        continue;
-                    }
-
-                    $sheet->setCellValue("{$column}1", $headers[$i]);
-                    $column++;
-                }
-            }
-
-            $row = 2;
-            foreach ($categories as $category) {
-                foreach ($category['rows'] as $dataRow) {
-
-                    $sheet->setCellValue("A{$row}", $category['name']);
-                    $sheet->setCellValue("B{$row}", $dataRow[0]);
-
-                    $col = 'C';
-
-
-                    for ($i = 1; $i < count($dataRow); $i++) {
-                        $value = $dataRow[$i];
-                        $sheet->setCellValue("{$col}{$row}", $value);
-                        $col++;
-                    }
-                    $row++;
-                }
-            }
-
-            $timestamp = time();
-            $upload_dir = wp_upload_dir();
-            $base_dir = $upload_dir['basedir'] . '/msa-tool/exports';
-            $base_url = $upload_dir['baseurl'] . '/msa-tool/exports';
-            $filename = "Orlando-MSA-Comparison-{$timestamp}.xlsx";
-
-            if (!file_exists($base_dir)) {
-                wp_mkdir_p($base_dir);
-            }
-
-            $output_path = "{$base_dir}/{$filename}";
-            $writer = new Xlsx($spreadsheet);
-            $writer->save($output_path);
-
-            return "{$base_url}/{$filename}";
-        } catch (Exception $e) {
-            error_log("[EXCEL EXPORT ERROR] " . $e->getMessage());
-            return null;
-        }
-    }
-*/
     public static function generate_excel($categories)
     {
         try {
@@ -349,8 +319,6 @@ class MSA_Tool_Export
             return null;
         }
     }
-
-
 
 
 }

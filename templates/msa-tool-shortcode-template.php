@@ -4,10 +4,7 @@
             <!-- Map Section -->
             <div id="msa-tool-map">
                 <div id="viewDiv" style="width: 100%; height: 400px;"></div>
-                <div id="map-loader" style="display: none;">
-                    <div class="loader"></div>
-
-                </div>
+                <div id="map-loader" style="display: none;"><div class="loader"></div></div>
 
             </div>
 
@@ -119,7 +116,9 @@
                                 <tbody>
                                 <?php $rowIndex = 0; ?>
                                 <?php foreach ($indicators as $indicator): ?>
-                                    <?php if (strpos($indicator, 'Rank') !== false) continue; ?>
+                                    <?php // if (strpos($indicator, 'Rank') !== false) continue; ?>
+                                    <?php if (preg_match('/\s[Rr]ank$/', $indicator)) continue; ?>
+
 
                                     <?php
                                     // Check if the indicator has subcategories
@@ -138,8 +137,8 @@
 
                                         foreach ($data['regions'] as $region_name => $region_data): ?>
                                             <?php
-                                            $val = $region_data['categories'][$category][$indicator]['value'] ?? '-';
-                                            $rank = $region_data['categories'][$category][$indicator]['rank'] ?? '-';
+                                            $val = $region_data['categories'][$category][$indicator]['value'] ?? '0';
+                                            $rank = $region_data['categories'][$category][$indicator]['rank'] ?? 'N/A';
                                             ?>
                                             <td class="msa-region-column"
                                                 data-region-slug="<?php echo esc_attr($region_data['slug']); ?>">
@@ -186,8 +185,8 @@
                                                 <td>— <?php echo esc_html($subcatName); ?></td>
                                                 <?php foreach ($data['regions'] as $rgName => $rgData): ?>
                                                     <?php
-                                                    $subValue = $rgData['categories'][$category][$indicator]['subcategories'][$subcatName] ?? '-';
-                                                    $subRank = $rgData['categories'][$category][$indicator]['subcategories'][$subcatName . ' Rank'] ?? '-';
+                                                    $subValue = $rgData['categories'][$category][$indicator]['subcategories'][$subcatName] ?? '0';
+                                                    $subRank = $rgData['categories'][$category][$indicator]['subcategories'][$subcatName . ' Rank'] ?? 'N/A';
                                                     ?>
                                                     <td class="msa-region-column"
                                                         data-region-slug="<?php echo esc_attr($rgData['slug']); ?>">
